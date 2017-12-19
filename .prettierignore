@@ -1,0 +1,7 @@
+.jest
+node_modules
+packages/*/lib
+packages/*/node_modules
+packages/*/package.json
+package.json
+scripts/yarn
