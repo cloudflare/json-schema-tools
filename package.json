@@ -1,5 +1,8 @@
 {
   "private": true,
+  "name": "@cloudflare/json-schema-tools",
+  "author": "Henry Andrews <henry@cloudflare.com>",
+  "licens": "BSD-3-Clause",
   "scripts": {
     "format": "prettier --write \"**/*.js\""
   },
