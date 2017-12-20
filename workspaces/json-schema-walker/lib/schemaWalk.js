@@ -20,7 +20,7 @@ var getSubschema = function(schema, path) {
     subschema = subschema[p];
   }
   return subschema;
-};
+}
 
 /**
  * Walk the entire schema, including the root schema.
@@ -49,9 +49,10 @@ var subschemaWalk = function(schema, preFunc, postFunc) {
     // In draft-04, two keywords can take boolean schemas
     // In draft-06, all schemas can be boolean
     return;
+
   } else if (Array.isArray(schema) || !(schema instanceof Object)) {
-    throw 'Expected object or boolean as schema, got ' +
-      (Array.isArray(schema) ? 'array' : typeof schema);
+    throw "Expected object or boolean as schema, got " +
+          (Array.isArray(schema) ? "array" : typeof schema);
   }
 
   for (let keyword in schema) {
@@ -71,34 +72,32 @@ var subschemaWalk = function(schema, preFunc, postFunc) {
  * they are handed off to _processLinks();
  */
 var _processSchemaKeyword = function(schema, keyword, preFunc, postFunc) {
-  if (
-    keyword === 'properties' ||
-    keyword === 'extraProperties' ||
-    keyword === 'patternProperties' ||
-    keyword === 'dependencies'
-  ) {
+  if (keyword === 'properties' ||
+      keyword === 'extraProperties' ||
+      keyword === 'patternProperties' ||
+      keyword === 'dependencies') {
+
     for (let prop of Object.getOwnPropertyNames(schema[keyword])) {
       // "dependencies" can have a mix of schemas and strings.
       if (schema[keyword][prop] instanceof Object) {
         _apply(schema, [keyword, prop], preFunc, postFunc);
       }
     }
-  } else if (
-    keyword === 'additionalProperties' ||
-    keyword === 'additionalItems' ||
-    keyword === 'not' ||
-    (keyword === 'items' && !Array.isArray(schema.items))
-  ) {
+
+  } else if (keyword === 'additionalProperties' ||
+             keyword === 'additionalItems' ||
+             keyword === 'not' ||
+             (keyword === 'items' && !Array.isArray(schema.items))) {
     _apply(schema, [keyword], preFunc, postFunc);
-  } else if (
-    (keyword === 'items' && Array.isArray(schema.items)) ||
-    keyword === 'allOf' ||
-    keyword === 'anyOf' ||
-    keyword === 'oneOf'
-  ) {
+
+  } else if ((keyword === 'items' && Array.isArray(schema.items)) ||
+             keyword === 'allOf' ||
+             keyword === 'anyOf' ||
+             keyword === 'oneOf') {
     for (let i = 0; i < schema[keyword].length; i++) {
       _apply(schema, [keyword, i], preFunc, postFunc);
     }
+
   } else if (keyword === 'links') {
     _processLinks(schema, preFunc, postFunc);
   }
@@ -143,7 +142,7 @@ var _apply = function(schema, path, preFunc, postFunc) {
   // Make sure we did not remove or change the subschema in question.
   subschema = getSubschema(schema, path);
   if (subschema === undefined) {
-    if (path[0] === 'links' && schema.links !== undefined) {
+    if (path[0] === 'links' && (schema.links !== undefined)) {
       // Deleting the LDO keywords is allowed.  Deleting an entire
       // LDO is not and is documented to produce undefined behavior
       // so we do not check for it.
@@ -158,5 +157,5 @@ var _apply = function(schema, path, preFunc, postFunc) {
 module.exports = {
   getSubschema,
   schemaWalk,
-  subschemaWalk
+  subschemaWalk,
 };

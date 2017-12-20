@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var schemaWalk = require('./schemaWalk');
+var schemaWalk = require('@cloudflare/json-schema-walker');
 
 /**
  * Perform the actual replacement/merge.

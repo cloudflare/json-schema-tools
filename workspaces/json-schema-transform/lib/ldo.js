@@ -1,7 +1,6 @@
 'use strict';
 
 const uriTemplates = require('uri-templates');
-const schemaWalk = require('./schemaWalk');
 
 /**
  * Returns the list of LDOs from the top level of the given
