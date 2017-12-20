@@ -143,7 +143,7 @@ var mergeCfRecurse = function(schema, options) {
     // any non-link subschemas.
     let linksOnly = { links: schema.links };
 
-    // The no-link (and no-definitions, as we ony preserved it
+    // The no-link (and no-definitions, as we only preserved it
     // for use with link hrefs) schema is to avoid copying
     // the links where they are not needed.
     let rootSchemaNoLinks = _.cloneDeep(schema);
@@ -156,7 +156,7 @@ var mergeCfRecurse = function(schema, options) {
         if (path.length > 1) {
           parentNode = schemaWalk.getSubschema(
             parent,
-            path.slice(0, length - 1)
+            path.slice(0, path.length - 1)
           );
         }
 
