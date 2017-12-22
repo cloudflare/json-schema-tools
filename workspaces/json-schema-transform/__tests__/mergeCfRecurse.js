@@ -68,7 +68,7 @@ describe('Merge root schema into "cfRecurse": "" schemas', () => {
     });
   });
 
-  describe('_pruneDefinitions', () => {
+  describe('pruneDefinitions', () => {
     test('no template varibles, remove definitions', () => {
       let testSchema = {
         links: [{ href: 'whatever' }],
@@ -77,7 +77,7 @@ describe('Merge root schema into "cfRecurse": "" schemas', () => {
       let expected = _.cloneDeep(testSchema);
       delete expected.definitions;
 
-      mergeCfRecurse._pruneDefinitions(testSchema);
+      mergeCfRecurse.pruneDefinitions(testSchema);
       expect(testSchema).toEqual(expected);
     });
 
@@ -92,21 +92,21 @@ describe('Merge root schema into "cfRecurse": "" schemas', () => {
       let expected = _.cloneDeep(testSchema);
       delete expected.definitions.foo;
 
-      mergeCfRecurse._pruneDefinitions(testSchema);
+      mergeCfRecurse.pruneDefinitions(testSchema);
       expect(testSchema).toEqual(expected);
     });
 
     test('throw on reference deeper than one definition', () => {
       let testSchema = { links: [{ href: '{#/definitions/foo/items}' }] };
       expect(
-        mergeCfRecurse._pruneDefinitions.bind(mergeCfRecurse, testSchema)
+        mergeCfRecurse.pruneDefinitions.bind(mergeCfRecurse, testSchema)
       ).toThrow(
         "Unsupported template variable format '{#/definitions/foo/items}'"
       );
     });
   });
 
-  describe('_removeLinksAndDefs', () => {
+  describe('removeLinksAndDefs', () => {
     test('remove links and definitions', () => {
       let testSchema = {
         allOf: [{}],
@@ -117,13 +117,13 @@ describe('Merge root schema into "cfRecurse": "" schemas', () => {
       };
       let expected = { allOf: [{}] };
 
-      mergeCfRecurse._removeLinksAndDefs(testSchema);
+      mergeCfRecurse.removeLinksAndDefs(testSchema);
       expect(testSchema).toEqual(expected);
     });
 
     test('do not error when there are no links or definitions', () => {
       let testSchema = { items: {} };
-      mergeCfRecurse._removeLinksAndDefs(testSchema);
+      mergeCfRecurse.removeLinksAndDefs(testSchema);
       expect(testSchema).toEqual(testSchema);
     });
   });
@@ -132,7 +132,7 @@ describe('Merge root schema into "cfRecurse": "" schemas', () => {
     beforeEach(() => {
       this.mocked = require('../lib/mergeCfRecurse');
       this.mocked._doMerge = jest.fn();
-      this.mocked._pruneDefinitions = jest.fn();
+      this.mocked.pruneDefinitions = jest.fn();
     });
 
     test('callback makes correct calls, immediate child rel-self', () => {
@@ -141,7 +141,7 @@ describe('Merge root schema into "cfRecurse": "" schemas', () => {
       schemaDocument.links[0].schema = { items: { cfRecurse: '' } };
       this.mocked.mergeCfRecurse(schemaDocument);
 
-      expect(this.mocked._pruneDefinitions.mock.calls.length).toBe(0);
+      expect(this.mocked.pruneDefinitions.mock.calls.length).toBe(0);
       expect(this.mocked._doMerge.mock.calls[0]).toEqual([
         schemaDocument.links[0].schema,
         'items',
@@ -165,7 +165,7 @@ describe('Merge root schema into "cfRecurse": "" schemas', () => {
 
       this.mocked.mergeCfRecurse(schemaDocument, options);
 
-      expect(this.mocked._pruneDefinitions.mock.calls.length).toBe(0);
+      expect(this.mocked.pruneDefinitions.mock.calls.length).toBe(0);
       expect(this.mocked._doMerge.mock.calls[0]).toEqual([
         schemaDocument.links[0].targetSchema.properties,
         'result',
@@ -176,13 +176,13 @@ describe('Merge root schema into "cfRecurse": "" schemas', () => {
       expect(schemaDocument).toEqual(expected);
     });
 
-    test('calls _pruneDefinitions and does not call _doMerge', () => {
+    test('calls pruneDefinitions and does not call _doMerge', () => {
       let schemaDocument = {
         links: [{ href: 'foo', targetSchema: {} }],
         definitions: { foo: {} }
       };
       this.mocked.mergeCfRecurse(schemaDocument);
-      expect(this.mocked._pruneDefinitions.mock.calls).toEqual([
+      expect(this.mocked.pruneDefinitions.mock.calls).toEqual([
         [schemaDocument]
       ]);
       expect(this.mocked._doMerge.mock.calls.length).toBe(0);

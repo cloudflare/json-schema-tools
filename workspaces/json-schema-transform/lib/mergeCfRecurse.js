@@ -33,7 +33,7 @@ var _doMerge = function(schemaParent, schemaProp, rootSchemaNoLinks) {
  * Removes "links" and "definitions" as they do not need
  * to be copied when replacing "cfRecurse": "".
  */
-var _removeLinksAndDefs = function(subschema, path, parent) {
+var removeLinksAndDefs = function(subschema, path, parent) {
   if (subschema.hasOwnProperty('links')) {
     delete subschema.links;
   }
@@ -44,16 +44,17 @@ var _removeLinksAndDefs = function(subschema, path, parent) {
 
 /**
  * Looks through all link href templates to find which
- * definitions are needed, and then removes all unneeded
- * definitions.  If no definitions remain, the definitions
- * keyword is removed entirely.
+ * definitions are needed for use with Cloudflare-style
+ * URI Templates that us JSON Pointers for variable names,
+ * and then removes all unneeded definitions.  If no definitions
+ * remain, the definitions keyword is removed entirely.
  *
  * Only variables that are URI fragments are considered,
  * as other variables do not link to the definitions.
  *
  * Currently, only top-level definitions are supported.
  */
-var _pruneDefinitions = function(schema) {
+var pruneDefinitions = function(schema) {
   // This will pull out all {#/schema/pointers}
   const uriTemplateVariablesPattern = /{#(?:\/\w+)+}/g;
   const definitionNamePattern = /{#\/definitions\/(\w+)}/;
@@ -110,9 +111,9 @@ var mergeCfRecurse = function(schema, options) {
     // instead of walkSchemas() because we want to keep the top-level
     // "links", and the top-level "definitions" is handled specially.
     if (schema.hasOwnProperty('definitions')) {
-      module.exports._pruneDefinitions(schema);
+      module.exports.pruneDefinitions(schema);
     }
-    schemaWalk.subschemaWalk(schema, module.exports._removeLinksAndDefs);
+    schemaWalk.subschemaWalk(schema, module.exports.removeLinksAndDefs);
 
     for (let i = 0; i < schema.links.length; i++) {
       let ldo = schema.links[i];
@@ -150,30 +151,36 @@ var mergeCfRecurse = function(schema, options) {
     delete rootSchemaNoLinks.links;
     delete rootSchemaNoLinks.definitions;
 
-    schemaWalk.subschemaWalk(linksOnly, (subschema, path, parent) => {
-      if (subschema.cfRecurse === '') {
-        let parentNode = parent;
-        if (path.length > 1) {
-          parentNode = schemaWalk.getSubschema(
-            parent,
-            path.slice(0, path.length - 1)
-          );
-        }
+    let walker = module.exports.makeCfRecurseWalker(rootSchemaNoLinks);
+    schemaWalk.subschemaWalk(linksOnly, walker);
+  }
+};
 
-        module.exports._doMerge(
-          parentNode,
-          path[path.length - 1],
-          rootSchemaNoLinks
+var makeCfRecurseWalker = function(root) {
+  return (subschema, path, parent) => {
+    if (subschema.cfRecurse === '') {
+      let parentNode = parent;
+      if (path.length > 1) {
+        parentNode = schemaWalk.getSubschema(
+          parent,
+          path.slice(0, path.length - 1)
         );
       }
-    });
-  }
+
+      module.exports._doMerge(
+        parentNode,
+        path[path.length - 1],
+        root
+      );
+    }
+  };
 };
 
 // The leading-_ functions are exported for testing purposes only.
 module.exports = {
   mergeCfRecurse,
+  makeCfRecurseWalker,
   _doMerge,
-  _pruneDefinitions,
-  _removeLinksAndDefs
+  pruneDefinitions,
+  removeLinksAndDefs
 };
