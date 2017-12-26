@@ -26,9 +26,9 @@ var getSubschema = function(schema, path) {
  * Walk the entire schema, including the root schema.
  */
 var schemaWalk = function(schema, preFunc, postFunc) {
-  preFunc && preFunc(schema, [], undefined);
-  subschemaWalk(schema, preFunc, postFunc);
-  postFunc && postFunc(schema, [], undefined);
+  preFunc && preFunc(schema, [], undefined, []);
+  subschemaWalk(schema, preFunc, postFunc, []);
+  postFunc && postFunc(schema, [], undefined, []);
 };
 
 /**
@@ -44,7 +44,12 @@ var schemaWalk = function(schema, preFunc, postFunc) {
  * from a list of subschemas, is not supported and will
  * result in undefined behavior.
  */
-var subschemaWalk = function(schema, preFunc, postFunc) {
+var subschemaWalk = function(schema, preFunc, postFunc, parentPath) {
+  if (parentPath === undefined) {
+    // Treat our parent schema as a root schema.
+    parentPath = [];
+  }
+
   if (typeof schema === 'boolean') {
     // In draft-04, two keywords can take boolean schemas
     // In draft-06, all schemas can be boolean
@@ -57,7 +62,7 @@ var subschemaWalk = function(schema, preFunc, postFunc) {
 
   for (let keyword in schema) {
     try {
-      _processSchemaKeyword(schema, keyword, preFunc, postFunc);
+      _processSchemaKeyword(schema, keyword, preFunc, postFunc, parentPath);
     } catch (e) {
       if (e !== NEXT_SCHEMA_KEYWORD) {
         throw e;
@@ -71,7 +76,8 @@ var subschemaWalk = function(schema, preFunc, postFunc) {
  * the callbacks to each subschema.  As links are more complex,
  * they are handed off to _processLinks();
  */
-var _processSchemaKeyword = function(schema, keyword, preFunc, postFunc) {
+var _processSchemaKeyword = function(schema, keyword,
+                                     preFunc, postFunc, parentPath) {
   if (keyword === 'properties' ||
       keyword === 'extraProperties' ||
       keyword === 'patternProperties' ||
@@ -80,7 +86,7 @@ var _processSchemaKeyword = function(schema, keyword, preFunc, postFunc) {
     for (let prop of Object.getOwnPropertyNames(schema[keyword])) {
       // "dependencies" can have a mix of schemas and strings.
       if (schema[keyword][prop] instanceof Object) {
-        _apply(schema, [keyword, prop], preFunc, postFunc);
+        _apply(schema, [keyword, prop], preFunc, postFunc, parentPath);
       }
     }
 
@@ -88,18 +94,18 @@ var _processSchemaKeyword = function(schema, keyword, preFunc, postFunc) {
              keyword === 'additionalItems' ||
              keyword === 'not' ||
              (keyword === 'items' && !Array.isArray(schema.items))) {
-    _apply(schema, [keyword], preFunc, postFunc);
+    _apply(schema, [keyword], preFunc, postFunc, parentPath);
 
   } else if ((keyword === 'items' && Array.isArray(schema.items)) ||
              keyword === 'allOf' ||
              keyword === 'anyOf' ||
              keyword === 'oneOf') {
     for (let i = 0; i < schema[keyword].length; i++) {
-      _apply(schema, [keyword, i], preFunc, postFunc);
+      _apply(schema, [keyword, i], preFunc, postFunc, parentPath);
     }
 
   } else if (keyword === 'links') {
-    _processLinks(schema, preFunc, postFunc);
+    _processLinks(schema, preFunc, postFunc, parentPath);
   }
 };
 
@@ -107,13 +113,14 @@ var _processSchemaKeyword = function(schema, keyword, preFunc, postFunc) {
  * Loop over the links and apply the callbacks, while
  * handling LDO keyword deletions by catching NEXT_LDO_KEYWORD.
  */
-var _processLinks = function(schema, preFunc, postFunc) {
+var _processLinks = function(schema, preFunc, postFunc, parentPath) {
   for (let i = 0; i < schema.links.length; i++) {
     let ldo = schema.links[i];
     for (let ldoSchemaProp of ['schema', 'targetSchema']) {
       if (ldo.hasOwnProperty(ldoSchemaProp)) {
         try {
-          _apply(schema, ['links', i, ldoSchemaProp], preFunc, postFunc);
+          _apply(schema, ['links', i, ldoSchemaProp],
+                 preFunc, postFunc, parentPath);
         } catch (e) {
           if (e !== NEXT_LDO_KEYWORD) {
             throw e;
@@ -135,10 +142,10 @@ var _processLinks = function(schema, preFunc, postFunc) {
  * These exceptions allow callers to break out of loops that
  * would otherwise attempt to continue processing deleted subschemas.
  */
-var _apply = function(schema, path, preFunc, postFunc) {
+var _apply = function(schema, path, preFunc, postFunc, parentPath) {
   let subschema = getSubschema(schema, path);
 
-  preFunc && preFunc(subschema, path, schema);
+  preFunc && preFunc(subschema, path, schema, parentPath);
   // Make sure we did not remove or change the subschema in question.
   subschema = getSubschema(schema, path);
   if (subschema === undefined) {
@@ -150,8 +157,8 @@ var _apply = function(schema, path, preFunc, postFunc) {
     }
     throw NEXT_SCHEMA_KEYWORD;
   }
-  subschemaWalk(subschema, preFunc, postFunc);
-  postFunc && postFunc(subschema, path, schema);
+  subschemaWalk(subschema, preFunc, postFunc, parentPath.concat(path));
+  postFunc && postFunc(subschema, path, schema, parentPath);
 };
 
 module.exports = {

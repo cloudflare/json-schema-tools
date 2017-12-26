@@ -9,11 +9,12 @@ describe('Walk schema', () => {
       (testSchema => {
         let positions = { pre: false, post: false };
 
-        let checkRoot = (position, subschema, path, parent) => {
+        let checkRoot = (position, subschema, path, parent, parentPath) => {
           positions[position] = true;
           expect(subschema).toEqual(testSchema);
           expect(path).toEqual([]);
           expect(parent).toEqual(undefined);
+          expect(parentPath).toEqual([]);
         };
 
         schemaWalk.schemaWalk(
@@ -31,13 +32,18 @@ describe('Walk schema', () => {
     let testSchema = { items: {} };
     let positions = { pre: false, post: false };
 
-    let checkSubschema = (position, subschema, path, parent) => {
+    let checkSubschema = (position, subschema, path, parent, parentPath) => {
       if (parent !== undefined) {
         positions[position] = true;
         expect(subschema).toEqual(testSchema.items);
         expect(path).toEqual(['items']);
         expect(parent).toEqual(testSchema);
       }
+      // Because we are only walking one level, both the initial parentPath
+      // (representing the non-existent parent of the root schema) and the
+      // parentPath for the subschema (representing the actual root schema)
+      // are empty.
+      expect(parentPath).toEqual([]);
     };
 
     schemaWalk.schemaWalk(
@@ -123,15 +129,20 @@ describe('Walk subschemas', () => {
 
     test('preorder', () => {
       let actual = [];
-      schemaWalk.subschemaWalk(this.testSchema, (schema, path, parent) => {
-        actual.push([schema, path]);
+      schemaWalk.subschemaWalk(this.testSchema, (schema, path,
+                                                 parent, parentPath) => {
+        actual.push([schema, path, parentPath]);
       });
 
       expect(actual).toEqual([
-        [this.testSchema.items[0], ['items', 0]],
-        [this.testSchema.items[1], ['items', 1]],
-        [this.testSchema.items[1].properties.foo, ['properties', 'foo']],
-        [this.testSchema.additionalItems, ['additionalItems']]
+        [this.testSchema.items[0], ['items', 0], []],
+        [this.testSchema.items[1], ['items', 1], []],
+        [
+          this.testSchema.items[1].properties.foo,
+          ['properties', 'foo'],
+          ['items', 1]
+        ],
+        [this.testSchema.additionalItems, ['additionalItems'], []]
       ]);
     });
 
@@ -140,16 +151,20 @@ describe('Walk subschemas', () => {
       schemaWalk.subschemaWalk(
         this.testSchema,
         null,
-        (schema, path, parent) => {
-          actual.push([schema, path]);
+        (schema, path, parent, parentPath) => {
+          actual.push([schema, path, parentPath]);
         }
       );
 
       expect(actual).toEqual([
-        [this.testSchema.items[0], ['items', 0]],
-        [this.testSchema.items[1].properties.foo, ['properties', 'foo']],
-        [this.testSchema.items[1], ['items', 1]],
-        [this.testSchema.additionalItems, ['additionalItems']]
+        [this.testSchema.items[0], ['items', 0], []],
+        [
+          this.testSchema.items[1].properties.foo,
+          ['properties', 'foo'],
+          ['items', 1]
+        ],
+        [this.testSchema.items[1], ['items', 1], []],
+        [this.testSchema.additionalItems, ['additionalItems'], []]
       ]);
     });
   });
@@ -161,19 +176,32 @@ describe('Walk subschemas', () => {
           schema: { title: 'schema schema' }
         },
         {
-          targetSchema: { title: 'targetSchema schema' }
+          targetSchema: {
+            title: 'targetSchema schema',
+            patternProperties: {
+              '^foo': {
+                title: 'patternProperties schema'
+              }
+            }
+          }
         }
       ]
     };
     let actual = [];
 
-    schemaWalk.subschemaWalk(testSchema, null, (schema, path, parent) => {
-      actual.push([schema, path]);
+    schemaWalk.subschemaWalk(testSchema, null,
+                             (schema, path, parent, parentPath) => {
+      actual.push([schema, path, parentPath]);
     });
 
     expect(actual).toEqual([
-      [testSchema.links[0].schema, ['links', 0, 'schema']],
-      [testSchema.links[1].targetSchema, ['links', 1, 'targetSchema']]
+      [testSchema.links[0].schema, ['links', 0, 'schema'], []],
+      [
+        testSchema.links[1].targetSchema.patternProperties['^foo'],
+        ['patternProperties', '^foo'],
+        ['links', 1, 'targetSchema']
+      ],
+      [testSchema.links[1].targetSchema, ['links', 1, 'targetSchema'], []]
     ]);
   });
 
