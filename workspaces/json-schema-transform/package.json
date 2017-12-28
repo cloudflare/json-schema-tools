@@ -1,0 +1,19 @@
+{
+  "name": "@cloudflare/json-schema-transform",
+  "version": "0.0.1",
+  "description": "Library for working with JSON [Hyper-]Schemas",
+  "main": "index.js",
+  "license": "BSD-3-Clause",
+  "author": "Henry Andrews <henry@cloudflare.com>",
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "dependencies": {
+    "@cloudflare/json-schema-walker": "^0.0.1",
+    "lodash": "^4.17.4",
+    "uri-templates": "^0.2.0"
+  },
+  "devDependencies": {
+    "jest": "^20.0.4"
+  }
+}
