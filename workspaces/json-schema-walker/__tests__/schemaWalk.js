@@ -129,10 +129,12 @@ describe('Walk subschemas', () => {
 
     test('preorder', () => {
       let actual = [];
-      schemaWalk.subschemaWalk(this.testSchema, (schema, path,
-                                                 parent, parentPath) => {
-        actual.push([schema, path, parentPath]);
-      });
+      schemaWalk.subschemaWalk(
+        this.testSchema,
+        (schema, path, parent, parentPath) => {
+          actual.push([schema, path, parentPath]);
+        }
+      );
 
       expect(actual).toEqual([
         [this.testSchema.items[0], ['items', 0], []],
@@ -189,10 +191,13 @@ describe('Walk subschemas', () => {
     };
     let actual = [];
 
-    schemaWalk.subschemaWalk(testSchema, null,
-                             (schema, path, parent, parentPath) => {
-      actual.push([schema, path, parentPath]);
-    });
+    schemaWalk.subschemaWalk(
+      testSchema,
+      null,
+      (schema, path, parent, parentPath) => {
+        actual.push([schema, path, parentPath]);
+      }
+    );
 
     expect(actual).toEqual([
       [testSchema.links[0].schema, ['links', 0, 'schema'], []],

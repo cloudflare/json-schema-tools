@@ -167,11 +167,7 @@ var makeCfRecurseWalker = function(root) {
         );
       }
 
-      module.exports._doMerge(
-        parentNode,
-        path[path.length - 1],
-        root
-      );
+      module.exports._doMerge(parentNode, path[path.length - 1], root);
     }
   };
 };
