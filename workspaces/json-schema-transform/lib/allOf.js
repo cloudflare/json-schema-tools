@@ -15,14 +15,14 @@ const DRAFT_04_NO_ID = {
   maxLength: _collision,
   pattern: _collision,
 
-  items: _collision,
+  items: _collapseArrayOrSingleSchemas,
   additionalItems: _notSupported,
   minItems: _collision,
   maxItems: _collision,
   uniqueItems: _or,
 
-  properties: _collision,
-  patternProperties: _collision,
+  properties: _collapseObjectOfSchemas,
+  patternProperties: _collapseObjectOfSchemas,
   additionalProperties: _notSupported,
   dependencies: _collision,
 
@@ -108,6 +108,88 @@ function _arrayUnion(parent, parentPath, subschema, vocab, keyword) {
 }
 
 /**
+ * Handles "items" or any future keyword that can take either a
+ * single subschema or an array of subschemas.
+ *
+ * TODO: Actually handle arrays.  For now we punt.
+ *
+ * TODO: The interaction between "items" and "additionalItems" is
+ *       complex, and we currently punt on it entirely.  Properly
+ *       supporting the keyword would also allow collapsing "items"
+ *       when one value is an array and the other is a single schema.
+ */
+function _collapseArrayOrSingleSchemas(
+  parent,
+  parentPath,
+  subschema,
+  vocab,
+  keyword
+) {
+  if (
+    keyword === 'items' &&
+    (parent.hasOwnProperty('additionalItems') ||
+      subschema.hasOwnProperty('additionalItems'))
+  ) {
+    throw `"additionalItems" not supported at /${parentPath.join('/')}`;
+  }
+
+  if (Array.isArray(parent[keyword]) || Array.isArray(subschema[keyword])) {
+    throw `Array form of "items" not supported at /${parentPath.join('/')}`;
+  }
+
+  // Use "this" to facilitate mocking and testing.
+  this.collapseSchemas(
+    parent[keyword],
+    parentPath.concat([keyword]),
+    subschema[keyword],
+    vocab
+  );
+}
+
+/**
+ * Handles any keyword with an object of subschemas for a value.
+ * TODO: The interactions among "properties", "patternProperties",
+ *       and "additionalProperties" are complex, and we currently
+ *       punt on it.
+ */
+function _collapseObjectOfSchemas(
+  parent,
+  parentPath,
+  subschema,
+  vocab,
+  keyword
+) {
+  if (
+    (keyword === 'properties' || keyword === 'patternProperties') &&
+    (parent.hasOwnProperty('additionalProperties') ||
+      subschema.hasOwnProperty('additionalProperties'))
+  ) {
+    throw `"additionalProperties" not supported at /${parentPath.join('/')}`;
+  }
+
+  for (let prop of _.union(
+    Object.keys(parent[keyword]),
+    Object.keys(subschema[keyword])
+  )) {
+    if (!parent[keyword].hasOwnProperty(prop)) {
+      // Then it must be in only the subschema, so just add it to the parent.
+      parent[keyword][prop] = subschema[keyword][prop];
+    } else if (subschema[keyword].hasOwnProperty(prop)) {
+      // They both have this property, so collapse them.
+      // Use "this" to facilitate mocking and testing.
+      this.collapseSchemas(
+        parent[keyword][prop],
+        parentPath.concat([keyword, prop]),
+        subschema[keyword][prop],
+        vocab
+      );
+    } else {
+      // The prop is just in the parent, so there's nothing to do.
+    }
+  }
+}
+
+/**
  * Ignores the subschema value.  In other words, a no-op that exists
  * to make handling such keywords explicit rather than it looking
  * like they were forgotten when examining the vocabulary structure.
@@ -153,6 +235,8 @@ module.exports = {
   collapseSchemas,
   _or,
   _arrayUnion,
+  _collapseArrayOrSingleSchemas,
+  _collapseObjectOfSchemas,
   _parentWins,
   _collision,
   _notSupported

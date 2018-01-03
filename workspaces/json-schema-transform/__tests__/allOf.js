@@ -81,4 +81,171 @@ describe('"allOf" Collapsing', () => {
       expect(parent).toEqual({ x: [1, 2, 3, 4, 5] });
     });
   });
+
+  describe('#collapseObjectOfSchemas', () => {
+    test('Successful collapse', () => {
+      // Uses a fake keyword to also test that "additionalProperties" is
+      // ignored unless the keyword is "properties" or "patternProperties".
+      let parent = {
+        props: {
+          parentOnly: { title: 'parentOnly' },
+          both: { title: 'both-parent' }
+        },
+        additionalProperties: false
+      };
+      let subschema = {
+        props: {
+          both: { title: 'both-sub' },
+          subOnly: { title: 'subOnly' }
+        },
+        additionalProperties: false
+      };
+
+      // We don't expect a change in the "both" property because
+      // we mock the call that would change it.
+      let expected = Object.assign({}, parent, { subOnly: subschema.subOnly });
+      // We don't care what's in the vocabulary as long as we can
+      // recognize it in the mock call.  Same for parentPath.
+      let vocab = { dontCare: () => {} };
+
+      this.mocked._collapseObjectOfSchemas(
+        parent,
+        [],
+        subschema,
+        vocab,
+        'props'
+      );
+
+      expect(parent).toEqual(expected);
+      expect(this.mocked.collapseSchemas.mock.calls.length).toBe(1);
+      expect(this.mocked.collapseSchemas.mock.calls[0]).toEqual([
+        parent.props.both,
+        ['props', 'both'],
+        subschema.props.both,
+        vocab
+      ]);
+    });
+
+    test('Exception with additionalProperties: properties in parent', () => {
+      expect(
+        collapser._collapseObjectOfSchemas.bind(
+          collapser,
+          { properties: {}, additionalProperties: {} },
+          [],
+          { properties: {} },
+          {},
+          'properties'
+        )
+      ).toThrow('"additionalProperties" not supported at /');
+    });
+
+    test('Exception with additionalProperties: patternProperties in subschema', () => {
+      expect(
+        collapser._collapseObjectOfSchemas.bind(
+          collapser,
+          { patternProperties: {} },
+          [],
+          { patternProperties: {}, additionalProperties: {} },
+          {},
+          'patternProperties'
+        )
+      ).toThrow('"additionalProperties" not supported at /');
+    });
+  });
+
+  describe('#collapseArrayOrSingleSchema', () => {
+    test('Exception on parent array', () => {
+      expect(
+        collapser._collapseArrayOrSingleSchemas.bind(
+          collapser,
+          { items: [{}, {}] },
+          [],
+          { items: {} },
+          {},
+          'items'
+        )
+      ).toThrow('Array form of "items" not supported at /');
+    });
+
+    test('Exception on subschema array', () => {
+      expect(
+        collapser._collapseArrayOrSingleSchemas.bind(
+          collapser,
+          { items: {} },
+          [],
+          { items: [{}, {}] },
+          {},
+          'items'
+        )
+      ).toThrow('Array form of "items" not supported at /');
+    });
+
+    test('Exception on both as arrays', () => {
+      expect(
+        collapser._collapseArrayOrSingleSchemas.bind(
+          collapser,
+          { items: [{}, {}] },
+          [],
+          { items: [{}, {}] },
+          {},
+          'items'
+        )
+      ).toThrow('Array form of "items" not supported at /');
+    });
+
+    test('Exception with additionalItems in parent', () => {
+      expect(
+        collapser._collapseArrayOrSingleSchemas.bind(
+          collapser,
+          { items: {}, additionalItems: {} },
+          [],
+          { items: {} },
+          {},
+          'items'
+        )
+      ).toThrow('"additionalItems" not supported at /');
+    });
+
+    test('Exception with additionalItems in subschema', () => {
+      expect(
+        collapser._collapseArrayOrSingleSchemas.bind(
+          collapser,
+          { items: {} },
+          [],
+          { items: {}, additionalItems: {} },
+          {},
+          'items'
+        )
+      ).toThrow('"additionalItems" not supported at /');
+    });
+
+    test('"additionalItems" ignored without "items"', () => {
+      this.mocked.collapseSchemas = jest.fn();
+
+      let parent = { x: { y: 1 }, additionalItems: {} };
+      let subschema = { x: { z: 2 }, additionalItems: {} };
+
+      // We don't care what's in the vocabulary as long as we can
+      // recognize it in the mock call.  Same for parentPath.
+      let vocab = { dontCare: () => {} };
+
+      this.mocked._collapseArrayOrSingleSchemas(
+        parent,
+        [],
+        subschema,
+        vocab,
+        'x'
+      );
+
+      // Because the call is mocked, there is no change to the parent
+      // to verify.
+      expect(this.mocked.collapseSchemas.mock.calls.length).toBe(1);
+      expect(this.mocked.collapseSchemas.mock.calls[0]).toEqual([
+        parent.x,
+        ['x'],
+        subschema.x,
+        vocab
+      ]);
+    });
+  });
 });
