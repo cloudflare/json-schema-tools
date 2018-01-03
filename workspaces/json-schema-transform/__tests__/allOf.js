@@ -248,4 +248,155 @@ describe('"allOf" Collapsing', () => {
       ]);
     });
   });
+
+  describe('#collapseSchemas', () => {
+    beforeEach(() => {
+      this.xSchema = { x: 1 };
+      this.ySchema = { y: 1 };
+      this.xVocab = { x: jest.fn() };
+    });
+
+    test('No-op on boolean true subschema', () => {
+      let result = collapser.collapseSchemas(
+        this.xSchema,
+        [],
+        true,
+        this.xVocab,
+        'x'
+      );
+      expect(result).toEqual({ x: 1 });
+      expect(this.xVocab.x.mock.calls.length).toBe(0);
+    });
+
+    test('No-op on boolean false parent schema', () => {
+      let result = collapser.collapseSchemas(false, [], true, this.xVocab, 'x');
+      expect(result).toBe(false);
+      expect(this.xVocab.x.mock.calls.length).toBe(0);
+    });
+
+    test('Exception on boolean true parent', () => {
+      expect(
+        collapser.collapseSchemas.bind(
+          collapser,
+          true,
+          [],
+          this.xSchema,
+          {},
+          'x'
+        )
+      ).toThrow('Cannot collapse boolean schemas at /');
+    });
+
+    test('Exception on boolean false subschema', () => {
+      expect(
+        collapser.collapseSchemas.bind(
+          collapser,
+          this.xSchema,
+          [],
+          false,
+          {},
+          'x'
+        )
+      ).toThrow('Cannot collapse boolean schemas at /');
+    });
+
+    test('No keyword is in both schemas', () => {
+      let expected = Object.assign({}, this.xSchema, this.ySchema);
+      let result = collapser.collapseSchemas(
+        this.xSchema,
+        [],
+        this.ySchema,
+        this.xVocab,
+        'x'
+      );
+      expect(result).toEqual(expected);
+      expect(result).toBe(this.xSchema);
+      expect(this.xVocab.x.mock.calls.length).toBe(0);
+    });
+
+    test('Vocabulary keyword is in both schemas', () => {
+      let subschema = { x: 2 };
+      let result = collapser.collapseSchemas(
+        this.xSchema,
+        [],
+        subschema,
+        this.xVocab,
+        'x'
+      );
+      expect(result).toBe(this.xSchema);
+      expect(this.xVocab.x.mock.calls.length).toBe(1);
+      expect(this.xVocab.x.mock.calls[0]).toEqual([
+        this.xSchema,
+        [],
+        subschema,
+        this.xVocab,
+        'x'
+      ]);
+    });
+  });
+
+  describe('Get callback', () => {
+    beforeEach(() => {
+      this.firstAllOf = { title: 'First in allOf' };
+      this.subschema = { allOf: [this.firstAllOf] };
+      this.parent = { items: this.subschema };
+    });
+
+    test('No allOf in subschema', () => {
+      let subschema = { title: 'Subschema' };
+      let parent = { allOf: [subschema] };
+      let c = this.mocked.getCollapseAllOfCallback();
+
+      c(subschema, ['allOf', 0], parent, []);
+      expect(this.mocked.collapseSchemas.mock.calls.length).toBe(0);
+    });
+
+    test('allOf in subschema', () => {
+      let c = this.mocked.getCollapseAllOfCallback(
+        'http://json-schema.org/draft-04/schema#'
+      );
+      let callbackParent = _.cloneDeep(this.subschema);
+
+      let expected = [
+        callbackParent,
+        ['items'],
+        callbackParent['allOf'][0],
+        this.mocked.DRAFT_04
+      ];
+
+      // Note that we need to check the arguments inside of the mock,
+      // because the callback later deletes the `allOf` out of the
+      // parent, and the mock stores the arguments by reference.
+      this.mocked.collapseSchemas = jest.fn(
+        (csParent, csParentPath, csSub, csVocab) => {
+          expect([csParent, csParentPath, csSub, csVocab]).toEqual(expected);
+        }
+      );
+      c(this.subschema, ['items'], this.parent, []);
+
+      expect(this.mocked.collapseSchemas.mock.calls.length).toBe(1);
+
+      // Make sure the "allOf" was deleted.
+      expect(this.subschema).toEqual({});
+    });
+
+    test('Additional vocabularies', () => {
+      let extra = { vocabTerm: () => {} };
+      let c = this.mocked.getCollapseAllOfCallback(
+        'http://json-schema.org/draft-04/hyper-schema#',
+        this.mocked.CLOUDFLARE_DOCA,
+        extra
+      );
+      c(this.subschema, ['items'], this.parent, []);
+      expect(this.mocked.collapseSchemas.mock.calls.length).toBe(1);
+      expect(this.mocked.collapseSchemas.mock.calls[0][3]).toEqual(
+        Object.assign(
+          {},
+          this.mocked.DRAFT_04_HYPER,
+          this.mocked.CLOUDFLARE_DOCA,
+          extra
+        )
+      );
+    });
+  });
 });

@@ -222,7 +222,84 @@ function _notSupported(parent, parentPath, subschema, vocab, keyword) {
  * to whatever extent is possible.
  */
 function collapseSchemas(parent, parentPath, subschema, vocab) {
-  throw 'Not implemented yet!';
+  if (parent === true || (parent !== false && subschema === false)) {
+    // TODO: Not yet entirely clear how to handle boolean schema collapse
+    //       when we normally modify the parent schema object in place.
+    //       There are several options including making another attempt
+    //       at using an immutable library instead.
+    throw `Cannot collapse boolean schemas at /${parentPath.join('/')}`;
+  }
+
+  if (parent === false || subschema === true) {
+    // Either the parent is already fully constrained, or the subschema
+    // explicitly does not add further constraints, so there is nothing
+    // to do.
+    return parent;
+  }
+
+  // Both are object schemas.
+  // NOTE: $ref and cfRecurse MUST first be pre-processed out.
+  for (let k of Object.keys(subschema)) {
+    if (parent.hasOwnProperty(k) && vocab[k] !== undefined) {
+      // Use the vocabulary's function to handle keywords that
+      // exist in both the parent and subschema.
+      vocab[k](parent, parentPath, subschema, vocab, k);
+    } else {
+      // The property is only in the subschema, copy to parent.
+      parent[k] = subschema[k];
+    }
+  }
+  return parent;
+}
+
+/**
+ * Returns a function suitable for use as a *post*-walk callback
+ * for json-schema-walker which flattens "allOf" keywords as
+ * much as possible, using the vocabularies provided.
+ *
+ * Constants for the supported drafts of the standard vocabulary
+ * are provided by this module, as is a constant for the extension
+ * vocabulary used by Cloudflare's Doca suite.
+ */
+function getCollapseAllOfCallback(schemaUri, ...additionalVocabularies) {
+  let vocab = {};
+
+  // Use "this" to facilitate mocking and testing.
+  switch (schemaUri) {
+    case 'http://json-schema.org/draft-04/schema#':
+      Object.assign(vocab, this.DRAFT_04);
+      break;
+    case 'http://json-schema.org/draft-04/hyper-schema#':
+      Object.assign(vocab, this.DRAFT_04_HYPER);
+      break;
+  }
+
+  if (additionalVocabularies.length) {
+    Object.assign(vocab, ...additionalVocabularies);
+  }
+
+  return (subschema, path, parent, parentPath) => {
+    // Note that subschema is passed as the initial *parent*, as we
+    // are collapsing the subschema's "allOf" subschemas.
+    // This process does not use the parent passed to this callback.
+    if (subschema instanceof Object && subschema.hasOwnProperty('allOf')) {
+      _.reduce(
+        subschema.allOf,
+        (subAsParent, schemaFromAllOf) => {
+          // Use "this" to facilitate mocking and testing.
+          this.collapseSchemas(
+            subAsParent,
+            parentPath.concat(path),
+            schemaFromAllOf,
+            vocab
+          );
+          return subAsParent;
+        },
+        subschema
+      );
+      delete subschema.allOf;
+    }
+  };
 }
 
 // Note that functions with a leading _ are exported only for
@@ -232,6 +309,7 @@ module.exports = {
   DRAFT_04,
   DRAFT_04_HYPER,
   CLOUDFLARE_DOCA,
+  getCollapseAllOfCallback,
   collapseSchemas,
   _or,
   _arrayUnion,
