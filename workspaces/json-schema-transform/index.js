@@ -1,5 +1,6 @@
 var mergeCfRecurse = require('./lib/mergeCfRecurse');
 var ldo = require('./lib/ldo');
+var allOf = require('./lib/allOf');
 
 module.exports = {
   mergeCfRecurse: mergeCfRecurse.mergeCfRecurse,

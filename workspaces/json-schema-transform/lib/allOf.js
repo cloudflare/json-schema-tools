@@ -138,7 +138,7 @@ function _collapseArrayOrSingleSchemas(
   }
 
   // Use "this" to facilitate mocking and testing.
-  this.collapseSchemas(
+  (this.collapseSchemas || module.exports.collapseSchemas)(
     parent[keyword],
     parentPath.concat([keyword]),
     subschema[keyword],
@@ -177,7 +177,7 @@ function _collapseObjectOfSchemas(
     } else if (subschema[keyword].hasOwnProperty(prop)) {
       // They both have this property, so collapse them.
       // Use "this" to facilitate mocking and testing.
-      this.collapseSchemas(
+      (this.collapseSchemas || module.exports.collapseSchemas)(
         parent[keyword][prop],
         parentPath.concat([keyword, prop]),
         subschema[keyword][prop],
@@ -205,7 +205,7 @@ function _parentWins(parent, parentPath, subschema, vocab, keyword) {
  */
 function _collision(parent, parentPath, subschema, vocab, keyword) {
   if (!_.isEqual(parent[keyword], subschema[keyword])) {
-    throw `Collision for keyword "${keyword}" at /{$parentPath.join('/')`;
+    throw `Collision for keyword "${keyword}" at /${parentPath.join('/')}`;
   }
 }
 
@@ -267,10 +267,10 @@ function getCollapseAllOfCallback(schemaUri, ...additionalVocabularies) {
   // Use "this" to facilitate mocking and testing.
   switch (schemaUri) {
     case 'http://json-schema.org/draft-04/schema#':
-      Object.assign(vocab, this.DRAFT_04);
+      Object.assign(vocab, module.exports.DRAFT_04);
       break;
     case 'http://json-schema.org/draft-04/hyper-schema#':
-      Object.assign(vocab, this.DRAFT_04_HYPER);
+      Object.assign(vocab, module.exports.DRAFT_04_HYPER);
       break;
   }
 
@@ -287,7 +287,7 @@ function getCollapseAllOfCallback(schemaUri, ...additionalVocabularies) {
         subschema.allOf,
         (subAsParent, schemaFromAllOf) => {
           // Use "this" to facilitate mocking and testing.
-          this.collapseSchemas(
+          (this.collapseSchemas || module.exports.collapseSchemas)(
             subAsParent,
             parentPath.concat(path),
             schemaFromAllOf,
@@ -319,9 +319,3 @@ module.exports = {
   _collision,
   _notSupported
 };
-
-Object.assign(module.exports, {
-  DRAFT_O4: DRAFT_04,
-  DRAFT_04_HYPER: DRAFT_04_HYPER,
-  CLOUDFLARE_DOCA: CLOUDFLARE_DOCA
-});
