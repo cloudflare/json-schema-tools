@@ -1,6 +1,7 @@
 var mergeCfRecurse = require('./lib/mergeCfRecurse');
 var ldo = require('./lib/ldo');
 var allOf = require('./lib/allOf');
+var example = require('./lib/example');
 
 module.exports = {
   mergeCfRecurse: mergeCfRecurse.mergeCfRecurse,
@@ -12,6 +13,7 @@ module.exports = {
   resolveUri: ldo.resolveUri,
   getCollapseAllOfCallback: allOf.getCollapseAllOfCallback,
   collapseSchemas: allOf.collapseSchemas,
+  rollUpExamples: example.rollUpExamples,
 
   // TODO: These should probably be namespaced in some way
   //       as they do specific things with the keywords rather
