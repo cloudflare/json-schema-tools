@@ -80,6 +80,11 @@ function _determineType(subschema) {
  * may not have been.
  */
 function rollupExamples(subschema, path, parent, parentPath) {
+  // TODO: Should this code error out on undefined examples
+  //       or leave them be?  What about undefined elements
+  //       in array examples, or in property examples, most
+  //       likely caused by minItems (and maybe minProperties
+  //       once that is supported)?
   if (
     subschema === true ||
     subschema === false ||
@@ -121,8 +126,11 @@ function rollupExamples(subschema, path, parent, parentPath) {
       //       patternProperties or additionalProperties, but technially can be
       //       used with properties as well.
       break;
+
     case 'array':
-      // TODO: Handle minItems > 1
+      // Let the array stay empty if we don't have a defined example
+      // element and we don't have minItems > 0.  But we will fill
+      // in undefined up to minItems if necessary.
       subschema.example = [];
       if (Array.isArray(subschema.items)) {
         subschema.items.forEach((element, index) => {
@@ -136,10 +144,27 @@ function rollupExamples(subschema, path, parent, parentPath) {
           subschema.example.push(subschema.additionalItems.example);
         }
       } else if (subschema.items && subschema.items.example !== undefined) {
-        // TODO: What if no example and minItems > 0?
         subschema.example = [subschema.items.example];
       }
+
+      // Ensure that we have at least minItems examples in the array,
+      // even if those "examples" are undefined (see TODO above about
+      // undefined examples).
+      if (subschema.minItems && subschema.minItems > subschema.example.length) {
+        let additionalExample;
+
+        if (Array.isArray(subschema.items) && subschema.additionalItems) {
+          additionalExample = subschema.additionalItems.example;
+        } else if (subschema.items) {
+          additionalExample = subschema.items.example;
+        }
+
+        for (let i = subschema.example.length; i < subschema.minItems; i++) {
+          subschema.example.push(additionalExample);
+        }
+      }
       break;
+
     default:
       // The default value, if it exists, is the example of last resort.
       subschema.example = subschema.default;

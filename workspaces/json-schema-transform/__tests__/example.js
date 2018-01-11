@@ -160,7 +160,9 @@ describe('example rollup', () => {
       expect(args).toEqual(expected);
     });
 
-    test('array with items arrays without additionalItems', () => {
+    test('array with array-form items without additionalItems', () => {
+      // Note that the minItems: 2 is a no-op, present to cover the
+      // path where a non-zero minItems has no effect.
       let [args, expected] = this.makeArgs({
         type: 'array',
         items: [
@@ -168,14 +170,15 @@ describe('example rollup', () => {
           { example: { some: 'thing' } },
           {},
           { example: 10 }
-        ]
+        ],
+        minItems: 2
       });
       expected[0].example = [true, { some: 'thing' }, undefined, 10];
       example.rollupExamples(...args);
       expect(args).toEqual(expected);
     });
 
-    test('array with items arrays and additionalItems', () => {
+    test('array with array-form items with additionalItems', () => {
       let [args, expected] = this.makeArgs({
         type: 'array',
         items: [
@@ -203,6 +206,40 @@ describe('example rollup', () => {
         }
       });
       expected[0].example = [];
+      example.rollupExamples(...args);
+      expect(args).toEqual(expected);
+    });
+
+    test('array with minItems > 0 but no defined examples', () => {
+      let [args, expected] = this.makeArgs({ type: 'array', minItems: 3 });
+      expected[0].example = [undefined, undefined, undefined];
+      example.rollupExamples(...args);
+      expect(args).toEqual(expected);
+    });
+
+    test('array with minItems > 0 and single schema items', () => {
+      let [args, expected] = this.makeArgs({
+        type: 'array',
+        items: {
+          example: 12345
+        },
+        minItems: 2
+      });
+      expected[0].example = [12345, 12345];
+      example.rollupExamples(...args);
+      expect(args).toEqual(expected);
+    });
+
+    test('array with minItems > 0 using additionalItems', () => {
+      let [args, expected] = this.makeArgs({
+        type: 'array',
+        items: [{ example: 'a' }],
+        additionalItems: {
+          example: 'b'
+        },
+        minItems: 4
+      });
+      expected[0].example = ['a', 'b', 'b', 'b'];
       example.rollupExamples(...args);
       expect(args).toEqual(expected);
     });
