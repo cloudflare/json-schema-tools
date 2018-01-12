@@ -14,6 +14,7 @@ module.exports = {
   getCollapseAllOfCallback: allOf.getCollapseAllOfCallback,
   collapseSchemas: allOf.collapseSchemas,
   rollUpExamples: example.rollUpExamples,
+  getCurlExampleCallback: example.getCurlExampleCallback,
 
   // TODO: These should probably be namespaced in some way
   //       as they do specific things with the keywords rather

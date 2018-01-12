@@ -1,3 +1,5 @@
+const ldoUtils = require('./ldo');
+
 /**
  * Determine the most likely primary type of any instance that
  * validates against the subschema.
@@ -174,7 +176,86 @@ function rollupExamples(subschema, path, parent, parentPath) {
   //       to 'unknown' under some circumstances.
 }
 
+/**
+ * Get a callback that will build curl request examples under every
+ * link.  This needs to be run after the example fields for every
+ * schema have been rolled up, including schemas under "definitions".
+ *
+ * In addition to providing the root schema that will be walked over
+ * with the callback, this allows for providing a base URI against
+ * which all hrefs are resolved, and a schema (with rolled-up example)
+ * for headers to use with all examples unless overridden.
+ */
+function getCurlExampleCallback(rootSchema, baseUri, globalHeaders) {
+  // At this point we expect that the top-level definitions
+  // have been trimmed down to those needed for URI resolution,
+  // so grab all definition examples for use as URI template data.
+  // If there are extra definitions they will be harmless.
+  let templateVars = {};
+  for (let def in rootSchema.definitions || {}) {
+    templateVars[def] = rootSchema.definitions[def].example;
+  }
+
+  return function(subschema, path, parent, parentPath) {
+    // This only processes link request and response subschemas,
+    // and we only want to process links that have already had
+    // all of their subschemas processed.  So look for links
+    // in the current subschema.
+    if (!subschema.links) {
+      return;
+    }
+
+    subschema.links.forEach(ldo => {
+      // The way we use draft-04, "schema" is the request schema and
+      // "targetSchema" is the response schema.  This is not correct,
+      // but it is how most people have (mis)interpreted the spec.
+      let method = ldo.method ? ldo.method.toUpperCase() : 'GET';
+
+      // TODO: Resolve against base URI according to RFC 3986.
+      let uri = baseUri + ldoUtils.resolveUri(ldo, templateVars);
+
+      let dataString = '';
+      if (ldo.schema) {
+        if (method === 'GET' || ldo.encType === 'multipart/form-data') {
+          let params = [];
+          // sort for repeatable testing
+          for (let [param, value] of Object.entries(
+            ldo.schema.example
+          ).sort()) {
+            params.push(`${param}=${value}`);
+          }
+          if (method === 'GET') {
+            uri += `?${params.join('&')}`;
+          } else {
+            dataString = `--form '${params.join(';')}'`;
+          }
+        } else {
+          dataString = `--data '${JSON.stringify(ldo.schema.example)}'`;
+        }
+      }
+
+      ldo.cfCurl = `curl -X ${method} "${uri}"`;
+
+      // Note: local headers override completely, allowing clearing
+      // global headers by setting "cfHeaders": {}
+      let headers = ldo.cfRequestHeaders || globalHeaders || {};
+
+      // Sort for predictable testing
+      Object.entries(headers.example || {})
+        .sort()
+        .forEach(([header, value]) => {
+          ldo.cfCurl += `\\\n     -H "${header}: ${value}"`;
+        });
+
+      if (dataString) {
+        ldo.cfCurl += `\\\n     ${dataString}`;
+      }
+    });
+  };
+}
+
 module.exports = {
   rollupExamples,
+  getCurlExampleCallback,
   _determineType
 };

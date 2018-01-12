@@ -254,8 +254,184 @@ describe('example rollup', () => {
     });
   });
 
+  describe('curl examples', () => {
+    beforeAll(() => {
+      this.base = 'https://example.com/api/';
+      this.globalHeaders = {
+        required: ['Content-Type', 'X-Auth-Email', 'X-Auth-Key'],
+        properties: {
+          'X-Auth-Email': {
+            type: 'string',
+            description: 'Your Cloudflare email',
+            example: 'user@example.com'
+          },
+          'X-Auth-Key': {
+            type: 'string',
+            length: 45,
+            description: 'Your Cloudflare API key',
+            example: 'c2547eb745079dac9320b638f5e225cf483cc5cfdda41'
+          },
+          'Content-Type': {
+            type: 'string',
+            enum: ['application/json'],
+            example: 'application/json',
+            description: 'Content type of the API request'
+          }
+        },
+        example: {
+          'X-Auth-Email': 'user@example.com',
+          'X-Auth-Key': 'c2547eb745079dac9320b638f5e225cf483cc5cfdda41',
+          'Content-Type': 'application/json'
+        }
+      };
+      this.globalHeadersExpected =
+        '\\\n     -H "Content-Type: application/json"' +
+        '\\\n     -H "X-Auth-Email: user@example.com"' +
+        '\\\n     -H "X-Auth-Key: ' +
+        'c2547eb745079dac9320b638f5e225cf483cc5cfdda41"';
+    });
+
+    test('defaulted GET, no query string, no headers', () => {
+      let ldo = {
+        href: 'foos',
+        cfRequestHeaders: {}
+      };
+      let schema = { links: [ldo] };
+
+      let cb = example.getCurlExampleCallback(
+        schema,
+        this.base,
+        this.globalHeaders
+      );
+      cb(schema, [], null, []);
+      expect(ldo.cfCurl).toBe(`curl -X GET "${this.base}foos"`);
+    });
+
+    test('explicit GET, query string, global headers', () => {
+      let ldo = {
+        href: 'foos',
+        method: 'GET',
+        schema: {
+          properties: {
+            thing: { example: 'xyz' },
+            stuff: { example: 42 }
+          },
+          example: {
+            thing: 'xyz',
+            stuff: 42
+          }
+        }
+      };
+      let schema = { links: [ldo] };
+
+      let cb = example.getCurlExampleCallback(
+        schema,
+        this.base,
+        this.globalHeaders
+      );
+      cb(schema, [], null, []);
+      expect(ldo.cfCurl).toBe(
+        `curl -X GET "${this.base}foos?stuff=42&thing=xyz"${
+          this.globalHeadersExpected
+        }`
+      );
+    });
+    test('DELETE, no data or query, no global or local headers', () => {
+      // Test capitalizing a lowercase method as well.
+      let ldo = {
+        href: 'deletable/thing',
+        method: 'delete'
+      };
+      let schema = { links: [ldo] };
+      let cb = example.getCurlExampleCallback(schema, this.base);
+      cb(schema, [], null, []);
+      expect(ldo.cfCurl).toBe(`curl -X DELETE "${this.base}deletable/thing"`);
+    });
+
+    test('PUT JSON data, template vars, override headers', () => {
+      let ldo = {
+        href: 'foos/{#/definitions/foo}/bars/{#/definitions/bar}',
+        method: 'PUT',
+        schema: {
+          type: 'object',
+          properties: {
+            x: { example: 2 },
+            y: { example: true }
+          },
+          example: { x: 2, y: true }
+        },
+        cfRequestHeaders: {
+          properties: {
+            Accept: { example: 'application/json' }
+          },
+          example: {
+            Accept: 'application/json'
+          }
+        }
+      };
+      let schema = {
+        links: [ldo],
+        definitions: {
+          foo: { example: 123 },
+          bar: { example: 456 }
+        }
+      };
+      let cb = example.getCurlExampleCallback(
+        schema,
+        this.base,
+        this.globalHeaders
+      );
+      cb(schema, [], null, []);
+      expect(ldo.cfCurl).toBe(
+        `curl -X PUT "${this.base}foos/123/bars/456"` +
+          `\\\n     -H "Accept: application/json"` +
+          `\\\n     --data '${JSON.stringify(ldo.schema.example)}'`
+      );
+    });
+
+    test('POST form data', () => {
+      let ldo = {
+        href: 'postable',
+        method: 'POST',
+        encType: 'multipart/form-data',
+        schema: {
+          type: 'object',
+          properties: {
+            x: { example: 2 },
+            y: { example: true }
+          },
+          example: { x: 2, y: true }
+        }
+      };
+      let schema = { links: [ldo] };
+      let cb = example.getCurlExampleCallback(
+        schema,
+        this.base,
+        this.globalHeaders
+      );
+      cb(schema, [], null, []);
+      expect(ldo.cfCurl).toBe(
+        `curl -X POST "${this.base}postable"${this.globalHeadersExpected}` +
+          `\\\n     --form 'x=2;y=true'`
+      );
+    });
+
+    test('No links, no problem', () => {
+      let schema = {};
+      let cb = example.getCurlExampleCallback(
+        schema,
+        this.base,
+        this.globalHeaders
+      );
+      expect(cb.bind(example, schema, [], null, [])).not.toThrow();
+    });
+  });
+
   test('index export', () => {
     let transform = require('../index.js');
     expect(transform.rollUpExamples).toBe(example.rollUpExamples);
+    expect(transform.getCurlExampleCallback).toBe(
+      example.getCurlExampleCallback
+    );
   });
 });
