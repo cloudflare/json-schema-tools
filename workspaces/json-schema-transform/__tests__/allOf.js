@@ -1,15 +1,9 @@
 'use strict';
 
 const _ = require('lodash');
-const collapser = require.requireActual('../lib/allOf.js');
+const collapser = require('../lib/allOf.js');
 
 describe('"allOf" Collapsing', () => {
-  beforeEach(() => {
-    this.mocked = require.requireMock('../lib/allOf.js');
-    Object.assign(this.mocked, collapser);
-    this.mocked.collapseSchemas = jest.fn();
-  });
-
   describe('#undconditional-functions', () => {
     test('test the no-op behavior of _parentWins()', () => {
       let parent = { foo: 1 };
@@ -108,22 +102,9 @@ describe('"allOf" Collapsing', () => {
       // recognize it in the mock call.  Same for parentPath.
       let vocab = { dontCare: () => {} };
 
-      this.mocked._collapseObjectOfSchemas(
-        parent,
-        [],
-        subschema,
-        vocab,
-        'props'
-      );
+      collapser._collapseObjectOfSchemas(parent, [], subschema, vocab, 'props');
 
       expect(parent).toEqual(expected);
-      expect(this.mocked.collapseSchemas.mock.calls.length).toBe(1);
-      expect(this.mocked.collapseSchemas.mock.calls[0]).toEqual([
-        parent.props.both,
-        ['props', 'both'],
-        subschema.props.both,
-        vocab
-      ]);
     });
 
     test('Exception with additionalProperties: properties in parent', () => {
@@ -220,8 +201,6 @@ describe('"allOf" Collapsing', () => {
     });
 
     test('"additionalItems" ignored without "items"', () => {
-      this.mocked.collapseSchemas = jest.fn();
-
       let parent = { x: { y: 1 }, additionalItems: {} };
       let subschema = { x: { z: 2 }, additionalItems: {} };
 
@@ -229,23 +208,13 @@ describe('"allOf" Collapsing', () => {
       // recognize it in the mock call.  Same for parentPath.
       let vocab = { dontCare: () => {} };
 
-      this.mocked._collapseArrayOrSingleSchemas(
+      collapser._collapseArrayOrSingleSchemas(
         parent,
         [],
         subschema,
         vocab,
         'x'
       );
-
-      // Because the call is mocked, there is no change to the parent
-      // to verify.
-      expect(this.mocked.collapseSchemas.mock.calls.length).toBe(1);
-      expect(this.mocked.collapseSchemas.mock.calls[0]).toEqual([
-        parent.x,
-        ['x'],
-        subschema.x,
-        vocab
-      ]);
     });
   });
 
@@ -336,67 +305,65 @@ describe('"allOf" Collapsing', () => {
   });
 
   describe('Get callback', () => {
-    beforeEach(() => {
-      this.firstAllOf = { title: 'First in allOf' };
-      this.subschema = { allOf: [this.firstAllOf] };
-      this.parent = { items: this.subschema };
-    });
+    beforeEach(() => {});
 
     test('No allOf in subschema', () => {
       let subschema = { title: 'Subschema' };
       let parent = { allOf: [subschema] };
-      let c = this.mocked.getCollapseAllOfCallback();
+      let c = collapser.getCollapseAllOfCallback();
 
       c(subschema, ['allOf', 0], parent, []);
-      expect(this.mocked.collapseSchemas.mock.calls.length).toBe(0);
+      expect(subschema).toEqual({ title: 'Subschema' });
     });
 
     test('allOf in subschema', () => {
-      let c = this.mocked.getCollapseAllOfCallback(
+      let firstAllOf = { title: 'First in allOf' };
+      let subschema = { allOf: [firstAllOf] };
+      let parent = { items: subschema };
+
+      let c = collapser.getCollapseAllOfCallback(
         'http://json-schema.org/draft-04/schema#'
       );
-      let callbackParent = _.cloneDeep(this.subschema);
 
-      let expected = [
-        callbackParent,
-        ['items'],
-        callbackParent['allOf'][0],
-        this.mocked.DRAFT_04
-      ];
+      c(subschema, ['items'], parent, []);
 
-      // Note that we need to check the arguments inside of the mock,
-      // because the callback later deletes the `allOf` out of the
-      // parent, and the mock stores the arguments by reference.
-      this.mocked.collapseSchemas = jest.fn(
-        (csParent, csParentPath, csSub, csVocab) => {
-          expect([csParent, csParentPath, csSub, csVocab]).toEqual(expected);
-        }
-      );
-      c(this.subschema, ['items'], this.parent, []);
-
-      expect(this.mocked.collapseSchemas.mock.calls.length).toBe(1);
-
-      // Make sure the "allOf" was deleted.
-      expect(this.subschema).toEqual({});
+      // We should have copied the title up and deleted the allOf.
+      expect(subschema).toEqual({
+        title: firstAllOf.title
+      });
     });
 
-    test('Additional vocabularies', () => {
-      let extra = { vocabTerm: () => {} };
-      let c = this.mocked.getCollapseAllOfCallback(
+    test('Additional vocabularies, unrecognized vocab term', () => {
+      let subschema = {
+        vocabTerm: 'outer',
+        allOf: [
+          { vocabTerm: 'inner', unexpected: false },
+          { title: 'Second in allOf', unexpected: true }
+        ]
+      };
+      let parent = { items: subschema };
+
+      // "Child wins" behavior, which is not a callback we otherwise have.
+      let extra = {
+        vocabTerm: (p, pp, s) => {
+          p.vocabTerm = s.vocabTerm;
+        }
+      };
+      let c = collapser.getCollapseAllOfCallback(
         'http://json-schema.org/draft-04/hyper-schema#',
-        this.mocked.CLOUDFLARE_DOCA,
+        collapser.CLOUDFLARE_DOCA,
         extra
       );
-      c(this.subschema, ['items'], this.parent, []);
-      expect(this.mocked.collapseSchemas.mock.calls.length).toBe(1);
-      expect(this.mocked.collapseSchemas.mock.calls[0][3]).toEqual(
-        Object.assign(
-          {},
-          this.mocked.DRAFT_04_HYPER,
-          this.mocked.CLOUDFLARE_DOCA,
-          extra
-        )
-      );
+      c(subschema, ['items'], parent, []);
+
+      // The conflicting "unexpected"s are unrecognized so the later value
+      // is ignored.
+      // "extra" should keep the outer value as its callback is a no-op.
+      expect(subschema).toEqual({
+        vocabTerm: 'inner',
+        title: 'Second in allOf',
+        unexpected: false
+      });
     });
   });
 });

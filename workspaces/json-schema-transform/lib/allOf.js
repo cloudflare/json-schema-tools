@@ -137,8 +137,7 @@ function _collapseArrayOrSingleSchemas(
     throw `Array form of "items" not supported at /${parentPath.join('/')}`;
   }
 
-  // Use "this" to facilitate mocking and testing.
-  (this.collapseSchemas || module.exports.collapseSchemas)(
+  collapseSchemas(
     parent[keyword],
     parentPath.concat([keyword]),
     subschema[keyword],
@@ -176,8 +175,7 @@ function _collapseObjectOfSchemas(
       parent[keyword][prop] = subschema[keyword][prop];
     } else if (subschema[keyword].hasOwnProperty(prop)) {
       // They both have this property, so collapse them.
-      // Use "this" to facilitate mocking and testing.
-      (this.collapseSchemas || module.exports.collapseSchemas)(
+      collapseSchemas(
         parent[keyword][prop],
         parentPath.concat([keyword, prop]),
         subschema[keyword][prop],
@@ -240,10 +238,14 @@ function collapseSchemas(parent, parentPath, subschema, vocab) {
   // Both are object schemas.
   // NOTE: $ref and cfRecurse MUST first be pre-processed out.
   for (let k of Object.keys(subschema)) {
-    if (parent.hasOwnProperty(k) && vocab[k] !== undefined) {
-      // Use the vocabulary's function to handle keywords that
-      // exist in both the parent and subschema.
-      vocab[k](parent, parentPath, subschema, vocab, k);
+    if (parent.hasOwnProperty(k)) {
+      if (vocab[k] !== undefined) {
+        // Use the vocabulary's function to handle keywords that
+        // exist in both the parent and subschema.  Just leave
+        // the keyword alone in the parent if we don't recognize it.
+        // TODO: Should we error on unrecognized conflicting values?
+        vocab[k](parent, parentPath, subschema, vocab, k);
+      }
     } else {
       // The property is only in the subschema, copy to parent.
       parent[k] = subschema[k];
@@ -264,13 +266,12 @@ function collapseSchemas(parent, parentPath, subschema, vocab) {
 function getCollapseAllOfCallback(schemaUri, ...additionalVocabularies) {
   let vocab = {};
 
-  // Use "this" to facilitate mocking and testing.
   switch (schemaUri) {
     case 'http://json-schema.org/draft-04/schema#':
-      Object.assign(vocab, module.exports.DRAFT_04);
+      Object.assign(vocab, DRAFT_04);
       break;
     case 'http://json-schema.org/draft-04/hyper-schema#':
-      Object.assign(vocab, module.exports.DRAFT_04_HYPER);
+      Object.assign(vocab, DRAFT_04_HYPER);
       break;
   }
 
@@ -286,8 +287,7 @@ function getCollapseAllOfCallback(schemaUri, ...additionalVocabularies) {
       _.reduce(
         subschema.allOf,
         (subAsParent, schemaFromAllOf) => {
-          // Use "this" to facilitate mocking and testing.
-          (this.collapseSchemas || module.exports.collapseSchemas)(
+          collapseSchemas(
             subAsParent,
             parentPath.concat(path),
             schemaFromAllOf,
