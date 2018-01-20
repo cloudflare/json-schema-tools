@@ -4,8 +4,8 @@ const schemaWalker = require('@cloudflare/json-schema-walker');
 // TODO: Most of the _collision fields can be handled in other
 //       ways not yet implemented.
 const DRAFT_04_NO_ID = {
-  type: _collision,
-  enum: _collision,
+  type: _singleValueOrArrayIntersection,
+  enum: _arrayIntersection,
 
   minimum: _collision,
   maximum: _collision,
@@ -24,7 +24,10 @@ const DRAFT_04_NO_ID = {
   properties: _collapseObjectOfSchemas,
   patternProperties: _collapseObjectOfSchemas,
   additionalProperties: _notSupported,
-  dependencies: _collision,
+
+  // dependencies is very complicated and
+  // we dont' currently use it.
+  dependencies: _notSupported,
 
   required: _arrayUnion,
   minProperties: _collision,
@@ -108,10 +111,44 @@ function _arrayUnion(parent, parentPath, subschema, vocab, keyword) {
 }
 
 /**
+ * Sets parent to an array containing only values that appear
+ * in both the parent and the subschema.  May result in an
+ * empty list, which will *not* throw an error.
+ */
+function _arrayIntersection(parent, parentPath, subschema, vocab, keyword) {
+  parent[keyword] = _.intersectionWith(
+    parent[keyword],
+    subschema[keyword],
+    _.isEqual
+  );
+}
+
+/**
+ * Similar to _arrayIntersection, except can handle single values
+ * as if they were one-element arrays.
+ */
+function _singleValueOrArrayIntersection(
+  parent,
+  parentPath,
+  subschema,
+  vocab,
+  keyword
+) {
+  if (!Array.isArray(parent[keyword])) {
+    parent[keyword] = [parent[keyword]];
+  }
+  if (!Array.isArray(subschema[keyword])) {
+    subschema[keyword] = [subschema[keyword]];
+  }
+  _arrayIntersection(parent, parentPath, subschema, vocab, keyword);
+  if (parent[keyword].length === 1) {
+    parent[keyword] = parent[keyword][0];
+  }
+}
+
+/**
  * Handles "items" or any future keyword that can take either a
  * single subschema or an array of subschemas.
- *
- * TODO: Actually handle arrays.  For now we punt.
  *
  * TODO: The interaction between "items" and "additionalItems" is
  *       complex, and we currently punt on it entirely.  Properly
@@ -133,16 +170,34 @@ function _collapseArrayOrSingleSchemas(
     throw `"additionalItems" not supported at /${parentPath.join('/')}`;
   }
 
-  if (Array.isArray(parent[keyword]) || Array.isArray(subschema[keyword])) {
-    throw `Array form of "items" not supported at /${parentPath.join('/')}`;
-  }
+  let parentVal = parent[keyword];
+  let subVal = subschema[keyword];
+  let parentIsArray = Array.isArray(parentVal);
+  let subIsArray = Array.isArray(subVal);
 
-  collapseSchemas(
-    parent[keyword],
-    parentPath.concat([keyword]),
-    subschema[keyword],
-    vocab
-  );
+  if (parentIsArray !== subIsArray) {
+    // TODO: Something fancy with array items + additionalItems
+    throw 'Mixed schema and array form of "items" not supported at /' +
+      parentPath.join('/');
+  } else if (parentIsArray) {
+    let commonLength = Math.min(parentVal.length, subVal.length);
+    for (let i = 0; i < commonLength; i++) {
+      collapseSchemas(
+        parentVal[i],
+        parentPath.concat([keyword, i]),
+        subVal[i],
+        vocab
+      );
+    }
+
+    if (subVal.length > commonLength) {
+      // Append the remaining subschema elements to the parent.
+      parentVal.push(...subVal.slice(commonLength));
+    }
+  } else {
+    // Both are single schemas.
+    collapseSchemas(parentVal, parentPath.concat([keyword]), subVal, vocab);
+  }
 }
 
 /**
@@ -313,6 +368,8 @@ module.exports = {
   collapseSchemas,
   _or,
   _arrayUnion,
+  _arrayIntersection,
+  _singleValueOrArrayIntersection,
   _collapseArrayOrSingleSchemas,
   _collapseObjectOfSchemas,
   _parentWins,
