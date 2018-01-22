@@ -4,31 +4,38 @@ const schemaWalker = require('@cloudflare/json-schema-walker');
 // TODO: Most of the _collision fields can be handled in other
 //       ways not yet implemented.
 const DRAFT_04_NO_ID = {
-  type: _collision,
-  enum: _collision,
+  type: _singleValueOrArrayIntersection,
+  enum: _arrayIntersection,
 
-  minimum: _collision,
-  maximum: _collision,
+  // exclulsiveMinimum and exclusiveMaximum
+  // are handled in _exclusiveComparison, and
+  // have no effect when the corresponding
+  // minimum or maximum keyword is absent.
+  minimum: _exclusiveComparison,
+  maximum: _exclusiveComparison,
   multipleOf: _collision,
 
-  minLength: _collision,
-  maxLength: _collision,
+  minLength: _maxOfMin,
+  maxLength: _minOfMax,
   pattern: _collision,
 
   items: _collapseArrayOrSingleSchemas,
   additionalItems: _notSupported,
-  minItems: _collision,
-  maxItems: _collision,
+  minItems: _maxOfMin,
+  maxItems: _minOfMax,
   uniqueItems: _or,
 
   properties: _collapseObjectOfSchemas,
   patternProperties: _collapseObjectOfSchemas,
   additionalProperties: _notSupported,
-  dependencies: _collision,
+
+  // dependencies is very complicated and
+  // we don't currently use it.
+  dependencies: _notSupported,
 
   required: _arrayUnion,
-  minProperties: _collision,
-  maxProperties: _collision,
+  minProperties: _maxOfMin,
+  maxProperties: _minOfMax,
 
   // "allOf" will always be handled separately, but just
   // in case it is seen, _parentWins is effectivley a no-op.
@@ -100,6 +107,56 @@ function _or(parent, parentPath, subschema, vocab, keyword) {
 }
 
 /**
+ * Sets the parent to the maximum of the values, for use
+ * with minimum boundaries.
+ */
+function _maxOfMin(parent, parentPath, subschema, vocab, keyword) {
+  parent[keyword] = Math.max(parent[keyword], subschema[keyword]);
+}
+
+/**
+ * Sets the parent to the minimum of the values, for use
+ * with maximum boundaries.
+ */
+function _minOfMax(parent, parentPath, subschema, vocab, keyword) {
+  parent[keyword] = Math.min(parent[keyword], subschema[keyword]);
+}
+
+/**
+ * Handle minimum and maximum with draft-04's boolean modifiers
+ * exclusivity.  The exclusive keywords could not be handled
+ * on their own in draft-04 which is why they were changed to
+ * numeric values in draft-06.
+ */
+function _exclusiveComparison(parent, parentPath, subschema, vocab, keyword) {
+  // We want the maximum of minimums or minimum of maximums.
+  let chooseSubValue =
+    keyword === 'minimum'
+      ? (p, s) => {
+          return p < s;
+        }
+      : (p, s) => {
+          return p > s;
+        };
+  let excKeyword = 'exclusiveM' + keyword.slice(1);
+
+  if (
+    parent[keyword] === subschema[keyword] &&
+    (parent[excKeyword] || subschema[excKeyword])
+  ) {
+    // parent value unchanged, but make sure exclusive modifier is set.
+    parent[excKeyword] = true;
+  } else if (chooseSubValue(parent[keyword], subschema[keyword])) {
+    // copy both subschema values to parent.
+    parent[keyword] = subschema[keyword];
+    parent[excKeyword] = subschema[excKeyword];
+  } else {
+    // Parent value unchanged, so also no need to change the
+    // parent exclusive modifier.
+  }
+}
+
+/**
  * Sets parent to an array containing all values that appear
  * in either the parent or the subschema.
  */
@@ -108,10 +165,44 @@ function _arrayUnion(parent, parentPath, subschema, vocab, keyword) {
 }
 
 /**
+ * Sets parent to an array containing only values that appear
+ * in both the parent and the subschema.  May result in an
+ * empty list, which will *not* throw an error.
+ */
+function _arrayIntersection(parent, parentPath, subschema, vocab, keyword) {
+  parent[keyword] = _.intersectionWith(
+    parent[keyword],
+    subschema[keyword],
+    _.isEqual
+  );
+}
+
+/**
+ * Similar to _arrayIntersection, except can handle single values
+ * as if they were one-element arrays.
+ */
+function _singleValueOrArrayIntersection(
+  parent,
+  parentPath,
+  subschema,
+  vocab,
+  keyword
+) {
+  if (!Array.isArray(parent[keyword])) {
+    parent[keyword] = [parent[keyword]];
+  }
+  if (!Array.isArray(subschema[keyword])) {
+    subschema[keyword] = [subschema[keyword]];
+  }
+  _arrayIntersection(parent, parentPath, subschema, vocab, keyword);
+  if (parent[keyword].length === 1) {
+    parent[keyword] = parent[keyword][0];
+  }
+}
+
+/**
  * Handles "items" or any future keyword that can take either a
  * single subschema or an array of subschemas.
- *
- * TODO: Actually handle arrays.  For now we punt.
  *
  * TODO: The interaction between "items" and "additionalItems" is
  *       complex, and we currently punt on it entirely.  Properly
@@ -133,16 +224,34 @@ function _collapseArrayOrSingleSchemas(
     throw `"additionalItems" not supported at /${parentPath.join('/')}`;
   }
 
-  if (Array.isArray(parent[keyword]) || Array.isArray(subschema[keyword])) {
-    throw `Array form of "items" not supported at /${parentPath.join('/')}`;
-  }
+  let parentVal = parent[keyword];
+  let subVal = subschema[keyword];
+  let parentIsArray = Array.isArray(parentVal);
+  let subIsArray = Array.isArray(subVal);
 
-  collapseSchemas(
-    parent[keyword],
-    parentPath.concat([keyword]),
-    subschema[keyword],
-    vocab
-  );
+  if (parentIsArray !== subIsArray) {
+    // TODO: Something fancy with array items + additionalItems
+    throw 'Mixed schema and array form of "items" not supported at /' +
+      parentPath.join('/');
+  } else if (parentIsArray) {
+    let commonLength = Math.min(parentVal.length, subVal.length);
+    for (let i = 0; i < commonLength; i++) {
+      collapseSchemas(
+        parentVal[i],
+        parentPath.concat([keyword, i]),
+        subVal[i],
+        vocab
+      );
+    }
+
+    if (subVal.length > commonLength) {
+      // Append the remaining subschema elements to the parent.
+      parentVal.push(...subVal.slice(commonLength));
+    }
+  } else {
+    // Both are single schemas.
+    collapseSchemas(parentVal, parentPath.concat([keyword]), subVal, vocab);
+  }
 }
 
 /**
@@ -236,6 +345,25 @@ function collapseSchemas(parent, parentPath, subschema, vocab) {
   }
 
   // Both are object schemas.
+
+  // TODO: This is only needed in draft-04, need to be smarter about
+  //       this once we add draft-06 or -07 support.
+  // "exclusiveMaximum" and "exclusiveMinimum" have no effect
+  // without adjacent "maximum" or "minimum", so if we have that
+  // situation in the parent, clear it out before processing things.
+  if (
+    parent.hasOwnProperty('exclusiveMaximum') &&
+    !parent.hasOwnProperty('maximum')
+  ) {
+    delete parent.exclusiveMaximum;
+  }
+  if (
+    parent.hasOwnProperty('exclusiveMinimum') &&
+    !parent.hasOwnProperty('minimum')
+  ) {
+    delete parent.exclusiveMinimum;
+  }
+
   // NOTE: $ref and cfRecurse MUST first be pre-processed out.
   for (let k of Object.keys(subschema)) {
     if (parent.hasOwnProperty(k)) {
@@ -312,7 +440,12 @@ module.exports = {
   getCollapseAllOfCallback,
   collapseSchemas,
   _or,
+  _minOfMax,
+  _maxOfMin,
+  _exclusiveComparison,
   _arrayUnion,
+  _arrayIntersection,
+  _singleValueOrArrayIntersection,
   _collapseArrayOrSingleSchemas,
   _collapseObjectOfSchemas,
   _parentWins,

@@ -1,5 +1,3 @@
-'use strict';
-
 const _ = require('lodash');
 const collapser = require('../lib/allOf.js');
 
@@ -66,6 +64,98 @@ describe('"allOf" Collapsing', () => {
     });
   });
 
+  describe('#maxOfMin', () => {
+    test('Parent max', () => {
+      let parent = { x: 42 };
+      collapser._maxOfMin(parent, [], { x: -42 }, {}, 'x');
+      expect(parent).toEqual({ x: 42 });
+    });
+
+    test('Subschema max', () => {
+      let parent = { x: 0.23 };
+      collapser._maxOfMin(parent, [], { x: 1.99 }, {}, 'x');
+      expect(parent).toEqual({ x: 1.99 });
+    });
+  });
+
+  describe('#minOfMax', () => {
+    test('Parent min', () => {
+      let parent = { x: -1 };
+      collapser._minOfMax(parent, [], { x: 2 }, {}, 'x');
+      expect(parent).toEqual({ x: -1 });
+    });
+
+    test('Subschema min', () => {
+      let parent = { x: 100.23 };
+      collapser._minOfMax(parent, [], { x: 1.99 }, {}, 'x');
+      expect(parent).toEqual({ x: 1.99 });
+    });
+  });
+
+  describe('#exclusiveComparison', () => {
+    /* Note that this is such a weird case (eliminated in draft-06)
+     * that the function is hardcoded for 'minimum' and 'maximum'
+     * rather than working with any possible keyword fitting the pattern.
+     */
+    test('Keep both in parent', () => {
+      let parent = {
+        minimum: 4,
+        exclusiveMinimum: true
+      };
+      collapser._exclusiveComparison(
+        parent,
+        [],
+        { minimum: 3.999 },
+        {},
+        'minimum'
+      );
+      expect(parent).toEqual({ minimum: 4, exclusiveMinimum: true });
+    });
+
+    test('Use subschema value, undefine the exclusive modifier', () => {
+      let parent = {
+        minimum: 4,
+        exclusiveMinimum: true
+      };
+      collapser._exclusiveComparison(
+        parent,
+        [],
+        { minimum: 4.001 },
+        {},
+        'minimum'
+      );
+      expect(parent).toEqual({ minimum: 4.001 });
+    });
+
+    test('Use subschema value and exclusive modifier', () => {
+      let parent = {
+        maximum: 100
+      };
+      collapser._exclusiveComparison(
+        parent,
+        [],
+        { maximum: 0, exclusiveMaximum: true },
+        {},
+        'maximum'
+      );
+      expect(parent).toEqual({ maximum: 0, exclusiveMaximum: true });
+    });
+
+    test('Same value, but copy exclusive modifier to parent', () => {
+      let parent = {
+        maximum: 1
+      };
+      collapser._exclusiveComparison(
+        parent,
+        [],
+        { maximum: 1, exclusiveMaximum: true },
+        {},
+        'maximum'
+      );
+      expect(parent).toEqual({ maximum: 1, exclusiveMaximum: true });
+    });
+  });
+
   describe('#arrayUnion', () => {
     test('Union with overlap', () => {
       let parent = {
@@ -73,6 +163,76 @@ describe('"allOf" Collapsing', () => {
       };
       collapser._arrayUnion(parent, [], { x: [4, 5, 1] }, {}, 'x');
       expect(parent).toEqual({ x: [1, 2, 3, 4, 5] });
+    });
+  });
+
+  describe('#arrayIntersection', () => {
+    test('Intersection with overlap', () => {
+      let parent = {
+        x: [1, 2, 3]
+      };
+      collapser._arrayIntersection(parent, [], { x: [2, 3, 4] }, {}, 'x');
+      expect(parent).toEqual({ x: [2, 3] });
+    });
+
+    test('Intersection without overlap', () => {
+      let parent = {
+        x: [1, 2, 3]
+      };
+      collapser._arrayIntersection(parent, [], { x: [4, 5, 6] }, {}, 'x');
+      expect(parent).toEqual({ x: [] });
+    });
+  });
+
+  describe('#singleValueOrArrayIntersection', () => {
+    test('Arrays to array', () => {
+      let parent = {
+        x: [1, 2, 3]
+      };
+      collapser._singleValueOrArrayIntersection(
+        parent,
+        [],
+        { x: [2, 3, 4] },
+        {},
+        'x'
+      );
+      expect(parent).toEqual({ x: [2, 3] });
+    });
+
+    test('Arrays to single value', () => {
+      let parent = {
+        x: [1, 2, 3]
+      };
+      collapser._singleValueOrArrayIntersection(
+        parent,
+        [],
+        { x: [3, 4] },
+        {},
+        'x'
+      );
+      expect(parent).toEqual({ x: 3 });
+    });
+
+    test('Parent single value', () => {
+      let parent = {
+        x: 2
+      };
+      collapser._singleValueOrArrayIntersection(
+        parent,
+        [],
+        { x: [2, 3, 4] },
+        {},
+        'x'
+      );
+      expect(parent).toEqual({ x: 2 });
+    });
+
+    test('Subschema single value', () => {
+      let parent = {
+        x: [1, 2, 3]
+      };
+      collapser._singleValueOrArrayIntersection(parent, [], { x: 1 }, {}, 'x');
+      expect(parent).toEqual({ x: 1 });
     });
   });
 
@@ -145,7 +305,7 @@ describe('"allOf" Collapsing', () => {
           {},
           'items'
         )
-      ).toThrow('Array form of "items" not supported at /');
+      ).toThrow('Mixed schema and array form of "items" not supported at /');
     });
 
     test('Exception on subschema array', () => {
@@ -158,20 +318,55 @@ describe('"allOf" Collapsing', () => {
           {},
           'items'
         )
-      ).toThrow('Array form of "items" not supported at /');
+      ).toThrow('Mixed schema and array form of "items" not supported at /');
     });
 
-    test('Exception on both as arrays', () => {
-      expect(
-        collapser._collapseArrayOrSingleSchemas.bind(
-          collapser,
-          { items: [{}, {}] },
-          [],
-          { items: [{}, {}] },
-          {},
-          'items'
-        )
-      ).toThrow('Array form of "items" not supported at /');
+    test('Collapse multiple arrays, sub-array larger', () => {
+      let parent = {
+        items: [{ title: 'p1' }, { title: 'p2' }]
+      };
+      let subschema = {
+        items: [
+          { description: 's1' },
+          { description: 's2' },
+          { description: 's3' }
+        ]
+      };
+      let expected = {
+        items: [
+          { title: 'p1', description: 's1' },
+          { title: 'p2', description: 's2' },
+          { description: 's3' }
+        ]
+      };
+      collapser._collapseArrayOrSingleSchemas(
+        parent,
+        [],
+        subschema,
+        {},
+        'items'
+      );
+      expect(parent).toEqual(expected);
+    });
+
+    test('Collapse multiple arrays, sub-array not larger', () => {
+      let parent = {
+        items: [{ title: 'p1' }]
+      };
+      let subschema = {
+        items: [{ description: 's1' }]
+      };
+      let expected = {
+        items: [{ title: 'p1', description: 's1' }]
+      };
+      collapser._collapseArrayOrSingleSchemas(
+        parent,
+        [],
+        subschema,
+        {},
+        'items'
+      );
+      expect(parent).toEqual(expected);
     });
 
     test('Exception with additionalItems in parent', () => {
@@ -301,6 +496,26 @@ describe('"allOf" Collapsing', () => {
         this.xVocab,
         'x'
       ]);
+    });
+
+    test('Ensure stray exclusiveMaximum is deleted', () => {
+      // In this scenario, _exclusiveComparison is not
+      // called because maximum is only in the child.
+      let parent = { exclusiveMaximum: true };
+      let subschema = { maximum: 10 };
+      expect(
+        collapser.collapseSchemas(parent, [], subschema, collapser.DRAFT_04)
+      ).toEqual({ maximum: 10 });
+    });
+
+    test('Ensure stray exclusiveMinimum is deleted', () => {
+      // In this scenario, _exclusiveComparison is not
+      // called because minimum is only in the child.
+      let parent = { exclusiveMinimum: true };
+      let subschema = { minimum: 10 };
+      expect(
+        collapser.collapseSchemas(parent, [], subschema, collapser.DRAFT_04)
+      ).toEqual({ minimum: 10 });
     });
   });
 
