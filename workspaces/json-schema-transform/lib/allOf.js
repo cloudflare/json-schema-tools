@@ -7,18 +7,22 @@ const DRAFT_04_NO_ID = {
   type: _singleValueOrArrayIntersection,
   enum: _arrayIntersection,
 
-  minimum: _collision,
-  maximum: _collision,
+  // exclulsiveMinimum and exclusiveMaximum
+  // are handled in _exclusiveComparison, and
+  // have no effect when the corresponding
+  // minimum or maximum keyword is absent.
+  minimum: _exclusiveComparison,
+  maximum: _exclusiveComparison,
   multipleOf: _collision,
 
-  minLength: _collision,
-  maxLength: _collision,
+  minLength: _maxOfMin,
+  maxLength: _minOfMax,
   pattern: _collision,
 
   items: _collapseArrayOrSingleSchemas,
   additionalItems: _notSupported,
-  minItems: _collision,
-  maxItems: _collision,
+  minItems: _maxOfMin,
+  maxItems: _minOfMax,
   uniqueItems: _or,
 
   properties: _collapseObjectOfSchemas,
@@ -26,12 +30,12 @@ const DRAFT_04_NO_ID = {
   additionalProperties: _notSupported,
 
   // dependencies is very complicated and
-  // we dont' currently use it.
+  // we don't currently use it.
   dependencies: _notSupported,
 
   required: _arrayUnion,
-  minProperties: _collision,
-  maxProperties: _collision,
+  minProperties: _maxOfMin,
+  maxProperties: _minOfMax,
 
   // "allOf" will always be handled separately, but just
   // in case it is seen, _parentWins is effectivley a no-op.
@@ -100,6 +104,56 @@ const CLOUDFLARE_DOCA = {
  */
 function _or(parent, parentPath, subschema, vocab, keyword) {
   parent[keyword] = parent[keyword] || subschema[keyword];
+}
+
+/**
+ * Sets the parent to the maximum of the values, for use
+ * with minimum boundaries.
+ */
+function _maxOfMin(parent, parentPath, subschema, vocab, keyword) {
+  parent[keyword] = Math.max(parent[keyword], subschema[keyword]);
+}
+
+/**
+ * Sets the parent to the minimum of the values, for use
+ * with maximum boundaries.
+ */
+function _minOfMax(parent, parentPath, subschema, vocab, keyword) {
+  parent[keyword] = Math.min(parent[keyword], subschema[keyword]);
+}
+
+/**
+ * Handle minimum and maximum with draft-04's boolean modifiers
+ * exclusivity.  The exclusive keywords could not be handled
+ * on their own in draft-04 which is why they were changed to
+ * numeric values in draft-06.
+ */
+function _exclusiveComparison(parent, parentPath, subschema, vocab, keyword) {
+  // We want the maximum of minimums or minimum of maximums.
+  let chooseSubValue =
+    keyword === 'minimum'
+      ? (p, s) => {
+          return p < s;
+        }
+      : (p, s) => {
+          return p > s;
+        };
+  let excKeyword = 'exclusiveM' + keyword.slice(1);
+
+  if (
+    parent[keyword] === subschema[keyword] &&
+    (parent[excKeyword] || subschema[excKeyword])
+  ) {
+    // parent value unchanged, but make sure exclusive modifier is set.
+    parent[excKeyword] = true;
+  } else if (chooseSubValue(parent[keyword], subschema[keyword])) {
+    // copy both subschema values to parent.
+    parent[keyword] = subschema[keyword];
+    parent[excKeyword] = subschema[excKeyword];
+  } else {
+    // Parent value unchanged, so also no need to change the
+    // parent exclusive modifier.
+  }
 }
 
 /**
@@ -291,6 +345,25 @@ function collapseSchemas(parent, parentPath, subschema, vocab) {
   }
 
   // Both are object schemas.
+
+  // TODO: This is only needed in draft-04, need to be smarter about
+  //       this once we add draft-06 or -07 support.
+  // "exclusiveMaximum" and "exclusiveMinimum" have no effect
+  // without adjacent "maximum" or "minimum", so if we have that
+  // situation in the parent, clear it out before processing things.
+  if (
+    parent.hasOwnProperty('exclusiveMaximum') &&
+    !parent.hasOwnProperty('maximum')
+  ) {
+    delete parent.exclusiveMaximum;
+  }
+  if (
+    parent.hasOwnProperty('exclusiveMinimum') &&
+    !parent.hasOwnProperty('minimum')
+  ) {
+    delete parent.exclusiveMinimum;
+  }
+
   // NOTE: $ref and cfRecurse MUST first be pre-processed out.
   for (let k of Object.keys(subschema)) {
     if (parent.hasOwnProperty(k)) {
@@ -367,6 +440,9 @@ module.exports = {
   getCollapseAllOfCallback,
   collapseSchemas,
   _or,
+  _minOfMax,
+  _maxOfMin,
+  _exclusiveComparison,
   _arrayUnion,
   _arrayIntersection,
   _singleValueOrArrayIntersection,
