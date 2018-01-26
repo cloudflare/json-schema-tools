@@ -68,20 +68,19 @@ allOf:
                     default: -8
                 stuff:
                     type: array
-                    example: [2, 0]
                     allOf:
                       - items:
                             allOf:
-                              - enum: [0, 1, 2, 3, 4]
+                              - enum: [0, 1, 2, 3, 4, 5, 6, 7, 8]
                                 readOnly: true
                                 default: 0
-                              - enum: [0, 2, 4, 6, 8]
+                              - enum: [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
                                 readOnly: false
-                        minItems: 1
-                        maxItems: 3
+                        minItems: 3
+                        maxItems: 5
                         uniqueItems: false
                       - minItems: 0
-                        maxItems: 2
+                        maxItems: 8
                         uniqueItems: true
   - required: [foo, oof]
     properties:

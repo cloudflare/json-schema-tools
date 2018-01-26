@@ -10,6 +10,13 @@ cfSectionNotes:
   - So we can append more with allOf
 $comment: One more texty bit!
 type: object
+example:
+    id: "0123456789abcdef0a1b2c3d4e5f9876"
+    foo:
+        bar: -8
+        stuff: [0, 0, 0]
+    oof: true
+    complicated: 127.0.0.1
 required: [foo, prefixOne, oof]
 properties:
     id:
@@ -38,6 +45,7 @@ properties:
                 exclusiveMaximum: true
                 multipleOf: 2
                 default: -8
+                example: -8
             stuff:
                 type: array
                 minItems: 3
@@ -47,9 +55,16 @@ properties:
                     readOnly: true
                     enum: [0, 2, 4, 6, 8]
                     default: 0
+                    example: 0
+                # TODO: The rollup code does not understand uniqueItems
+                example: [0, 0, 0]
+        example:
+            bar: -8
+            stuff: [0, 0, 0]
     oof:
         type: boolean
         default: true
+        example: true
     complicated:
         type: string
         anyOf:
@@ -58,8 +73,10 @@ properties:
                 example: 127.0.0.1
               - format: ipv6
                 example: "::1"
+            example: 127.0.0.1
           - format: uri-reference
             example: foo/bar/baz
+        example: 127.0.0.1
 cfLinkErrors:
   - 1000: Some error
   - 1001: Some other error
@@ -72,9 +89,24 @@ links:
         # TODO: Make this configurable
         id: "#/links/0/targetSchema"
         type: object
+        example:
+            result:
+              - id: "0123456789abcdef0a1b2c3d4e5f9876"
+                foo:
+                    bar: -8
+                    stuff: [0, 0, 0]
+                oof: true
+                complicated: 127.0.0.1
         properties:
             result:
                 type: array
+                example:
+                  - id: "0123456789abcdef0a1b2c3d4e5f9876"
+                    foo:
+                        bar: -8
+                        stuff: [0, 0, 0]
+                    oof: true
+                    complicated: 127.0.0.1
                 items:
                     $id: "https://example.cloudflare.com/json-schema-transform/systemtest"
                     $schema: "http://json-schema.org/draft-04/hyper-schema#"
@@ -88,6 +120,13 @@ links:
                       - So we can append more with allOf
                     $comment: One more texty bit!
                     type: object
+                    example:
+                        id: "0123456789abcdef0a1b2c3d4e5f9876"
+                        foo:
+                            bar: -8
+                            stuff: [0, 0, 0]
+                        oof: true
+                        complicated: 127.0.0.1
                     required: [id, foo, prefixOne, oof]
                     properties:
                         id:
@@ -116,6 +155,7 @@ links:
                                     exclusiveMaximum: true
                                     multipleOf: 2
                                     default: -8
+                                    example: -8
                                 stuff:
                                     type: array
                                     minItems: 3
@@ -125,9 +165,16 @@ links:
                                         readOnly: true
                                         enum: [0, 2, 4, 6, 8]
                                         default: 0
+                                        example: 0
+                                    # TODO: The rollup code does not understand uniqueItems
+                                    example: [0, 0, 0]
+                            example:
+                                bar: -8
+                                stuff: [0, 0, 0]
                         oof:
                             type: boolean
                             default: true
+                            example: true
                         complicated:
                             type: string
                             anyOf:
@@ -136,8 +183,10 @@ links:
                                     example: 127.0.0.1
                                   - format: ipv6
                                     example: "::1"
+                                example: 127.0.0.1
                               - format: uri-reference
                                 example: foo/bar/baz
+                            example: 127.0.0.1
                     cfLinkErrors:
                       - 1000: Some error
                       - 1001: Some other error
@@ -158,6 +207,13 @@ links:
           - So we can append more with allOf
         $comment: One more texty bit!
         type: object
+        example:
+            id: "0123456789abcdef0a1b2c3d4e5f9876"
+            foo:
+                bar: -8
+                stuff: [0, 0, 0]
+            oof: true
+            complicated: 127.0.0.1
         required: [foo, prefixOne, oof]
         properties:
             id:
@@ -186,6 +242,7 @@ links:
                         exclusiveMaximum: true
                         multipleOf: 2
                         default: -8
+                        example: -8
                     stuff:
                         type: array
                         minItems: 3
@@ -195,9 +252,16 @@ links:
                             readOnly: true
                             enum: [0, 2, 4, 6, 8]
                             default: 0
+                            example: 0
+                        # TODO: The rollup code does not understand uniqueItems
+                        example: [0, 0, 0]
+                example:
+                    bar: -8
+                    stuff: [0, 0, 0]
             oof:
                 type: boolean
                 default: true
+                example: true
             complicated:
                 type: string
                 anyOf:
@@ -206,8 +270,10 @@ links:
                         example: 127.0.0.1
                       - format: ipv6
                         example: "::1"
+                    example: 127.0.0.1
                   - format: uri-reference
                     example: foo/bar/baz
+                example: 127.0.0.1
         cfLinkErrors:
           - 1000: Some error
           - 1001: Some other error
@@ -228,6 +294,13 @@ links:
           - So we can append more with allOf
         $comment: One more texty bit!
         type: object
+        example:
+            id: "0123456789abcdef0a1b2c3d4e5f9876"
+            foo:
+                bar: -8
+                stuff: [0, 0, 0]
+            oof: true
+            complicated: 127.0.0.1
         required: [id, foo, prefixOne, oof]
         properties:
             id:
@@ -256,6 +329,7 @@ links:
                         exclusiveMaximum: true
                         multipleOf: 2
                         default: -8
+                        example: -8
                     stuff:
                         type: array
                         minItems: 3
@@ -265,9 +339,16 @@ links:
                             readOnly: true
                             enum: [0, 2, 4, 6, 8]
                             default: 0
+                            example: 0
+                        # TODO: The rollup code does not understand uniqueItems
+                        example: [0, 0, 0]
+                example:
+                    bar: -8
+                    stuff: [0, 0, 0]
             oof:
                 type: boolean
                 default: true
+                example: true
             complicated:
                 type: string
                 anyOf:
@@ -276,8 +357,10 @@ links:
                         example: 127.0.0.1
                       - format: ipv6
                         example: "::1"
+                    example: 127.0.0.1
                   - format: uri-reference
                     example: foo/bar/baz
+                example: 127.0.0.1
         cfLinkErrors:
           - 1000: Some error
           - 1001: Some other error

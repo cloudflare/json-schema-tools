@@ -49,6 +49,13 @@ function _determineType(subschema) {
     } else if (subschema.oneOf || subschema.anyOf) {
       type = 'multi';
     }
+  } else if (
+    !subschema.hasOwnProperty('example') &&
+    (subschema.oneOf || subschema.anyOf)
+  ) {
+    // Only override the explicit type if there is no local example
+    // but there are subschemas that might contribute an example.
+    type = 'multi';
   }
   return type;
 }
