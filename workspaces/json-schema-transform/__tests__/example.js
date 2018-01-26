@@ -323,9 +323,9 @@ describe('example rollup', () => {
         }
       };
       this.globalHeadersExpected =
-        '\\\n     -H "Content-Type: application/json"' +
-        '\\\n     -H "X-Auth-Email: user@example.com"' +
-        '\\\n     -H "X-Auth-Key: ' +
+        ' \\\n     -H "Content-Type: application/json"' +
+        ' \\\n     -H "X-Auth-Email: user@example.com"' +
+        ' \\\n     -H "X-Auth-Key: ' +
         'c2547eb745079dac9320b638f5e225cf483cc5cfdda41"';
     });
 
@@ -422,8 +422,8 @@ describe('example rollup', () => {
       cb(schema, [], null, []);
       expect(ldo.cfCurl).toBe(
         `curl -X PUT "${this.base}foos/123/bars/456"` +
-          `\\\n     -H "Accept: application/json"` +
-          `\\\n     --data '${JSON.stringify(ldo.schema.example)}'`
+          ` \\\n     -H "Accept: application/json"` +
+          ` \\\n     --data '${JSON.stringify(ldo.schema.example)}'`
       );
     });
 
@@ -450,7 +450,7 @@ describe('example rollup', () => {
       cb(schema, [], null, []);
       expect(ldo.cfCurl).toBe(
         `curl -X POST "${this.base}postable"${this.globalHeadersExpected}` +
-          `\\\n     --form 'x=2;y=true'`
+          ` \\\n     --form 'x=2;y=true'`
       );
     });
 

@@ -278,11 +278,10 @@ function getCurlExampleCallback(rootSchema, baseUri, globalHeaders) {
       Object.entries(headers.example || {})
         .sort()
         .forEach(([header, value]) => {
-          ldo.cfCurl += `\\\n     -H "${header}: ${value}"`;
+          ldo.cfCurl += ` \\\n     -H "${header}: ${value}"`;
         });
-
       if (dataString) {
-        ldo.cfCurl += `\\\n     ${dataString}`;
+        ldo.cfCurl += ` \\\n     ${dataString}`;
       }
     });
   };
