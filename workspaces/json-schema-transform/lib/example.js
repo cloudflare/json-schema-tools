@@ -59,6 +59,10 @@ function _determineType(subschema) {
  * that already have an "example" field are left alone, although
  * the roll up will be run on subschemas.
  *
+ * In order for a roll up to occur, all required fields or
+ * array elements must have an example value.  Otherwise the
+ * parent is not assigned an example.
+ *
  * Some assumptions are made about types and complex schemas.
  *
  *    * If multiple "type" values are present, the first is used.
@@ -71,26 +75,16 @@ function _determineType(subschema) {
  *      arbitrary).
  *
  * This is intended for use with @cloudflare/json-schema-walker
- * as a post-walk callback, therefore it can safely assume that
- * subschemas of the subschema will have a rolled-up example
- * field as have already been visited.  Although this field may
- * be undefined if there was nothing to roll up.
- *
- * This is why the rollup is done in the subschema rather than
- * the parent.  All of the subschema's subschemas are guaranteed
- * to have been visited, while adjacent subschemas in the parent
- * may not have been.
+ * as a post-walk callback, which is why the rollup is done in the
+ * subschema rather than the parent.  All of the subschema's subschemas
+ * are guaranteed * to have been visited, while adjacent subschemas in
+ * the parent may not have been.
  */
 function rollupExamples(subschema, path, parent, parentPath) {
-  // TODO: Should this code error out on undefined examples
-  //       or leave them be?  What about undefined elements
-  //       in array examples, or in property examples, most
-  //       likely caused by minItems (and maybe minProperties
-  //       once that is supported)?
   if (
     subschema === true ||
     subschema === false ||
-    subschema.example !== undefined
+    subschema.hasOwnProperty('example')
   ) {
     // Nothing to do as boolean schemas don't use examples.
     // Also, if there's already an example, just leave it as-is.
@@ -103,24 +97,41 @@ function rollupExamples(subschema, path, parent, parentPath) {
   switch (type) {
     case 'multi':
       let alternatives = (subschema.oneOf || []).concat(subschema.anyOf || []);
-      for (let i in alternatives) {
-        if (alternatives[i].example !== undefined) {
+      for (let i = 0; i < alternatives.length; i++) {
+        if (alternatives[i].hasOwnProperty('example')) {
+          // We're only choosing one alternative, so exit the loop immediately.
           subschema.example = alternatives[i].example;
           break;
         }
       }
       break;
+
     case 'object':
+      if (!subschema.properties) {
+        return;
+      }
+
       subschema.example = {};
-      for (const prop in subschema.properties || {}) {
-        if (
-          !subschema.properties[prop].cfPrivate &&
-          !subschema.properties[prop].cfOmitFromExample &&
-          subschema.properties[prop].example !== undefined
-        ) {
-          subschema.example[prop] = subschema.properties[prop].example;
+      for (const prop in subschema.properties) {
+        // TODO: How does cfPrivate fit into this?
+        if (!subschema.properties[prop].cfOmitFromExample) {
+          if (subschema.properties[prop].hasOwnProperty('example')) {
+            subschema.example[prop] = subschema.properties[prop].example;
+          } else if (subschema.required && subschema.required.includes(prop)) {
+            // This is a required property that must be included
+            // in the rollup, but it does not have an example so we
+            // cannot do the rollup.
+            delete subschema.example;
+            return;
+          }
         }
       }
+
+      // If we didn't find any examples to roll up, remove the rollup.
+      if (!Object.keys(subschema.example).length) {
+        delete subschema.example;
+      }
+
       // TODO: Something for "patternProperties" and "additionalProperties"?
       //       For now, objects using these keywords should provide examples
       //       at the parent object level.
@@ -130,50 +141,66 @@ function rollupExamples(subschema, path, parent, parentPath) {
       break;
 
     case 'array':
-      // Let the array stay empty if we don't have a defined example
-      // element and we don't have minItems > 0.  But we will fill
-      // in undefined up to minItems if necessary.
-      subschema.example = [];
-      if (Array.isArray(subschema.items)) {
-        subschema.items.forEach((element, index) => {
-          subschema.example[index] = subschema.items[index].example;
-        });
+      // First figure out if we have the necessary example field(s) to roll up
+      let hasSingleItems = false;
+      let hasArrayItems = false;
+      let hasAddlItems = false;
+      let hasEnoughItems = true;
 
-        if (
+      if (Array.isArray(subschema.items)) {
+        hasArrayItems = subschema.items.reduce((hasExamples, current) => {
+          return hasExamples && current.hasOwnProperty('example');
+        }, true);
+
+        hasAddlItems =
           subschema.additionalItems &&
-          subschema.additionalItems.example !== undefined
-        ) {
+          subschema.additionalItems.hasOwnProperty('example');
+
+        hasEnoughItems =
+          !subschema.minItems ||
+          hasAddlItems ||
+          subschema.minItems <= subschema.items.length;
+      } else {
+        hasSingleItems =
+          subschema.items && subschema.items.hasOwnProperty('example');
+      }
+
+      if (!(hasSingleItems || (hasArrayItems && hasEnoughItems))) {
+        // We can't roll up an example, so we're done.
+        return;
+      }
+
+      // Now build the example.  We know that we have whatever
+      // example fields that we need, so no need for further checks.
+      if (hasArrayItems) {
+        subschema.example = subschema.items.map(e => e.example);
+        if (hasAddlItems) {
           subschema.example.push(subschema.additionalItems.example);
         }
-      } else if (subschema.items && subschema.items.example !== undefined) {
+      } else {
+        // We must be in the single items case because otherwise
+        // we would have exited earlier.  Making this an else if
+        // to be explicit about it makes the implied else unreachable
+        // and causes test coverage reports to complain.
         subschema.example = [subschema.items.example];
       }
 
-      // Ensure that we have at least minItems examples in the array,
-      // even if those "examples" are undefined (see TODO above about
-      // undefined examples).
       if (subschema.minItems && subschema.minItems > subschema.example.length) {
-        let additionalExample;
-
-        if (Array.isArray(subschema.items) && subschema.additionalItems) {
-          additionalExample = subschema.additionalItems.example;
-        } else if (subschema.items) {
-          additionalExample = subschema.items.example;
-        }
-
-        for (let i = subschema.example.length; i < subschema.minItems; i++) {
-          subschema.example.push(additionalExample);
-        }
+        let addlExample = hasArrayItems
+          ? subschema.additionalItems.example
+          : subschema.items.example;
+        let oldLength = subschema.example.length;
+        subschema.example.length = subschema.minItems;
+        subschema.example.fill(addlExample, oldLength);
       }
       break;
 
     default:
       // The default value, if it exists, is the example of last resort.
-      subschema.example = subschema.default;
+      if (subschema.hasOwnProperty('default')) {
+        subschema.example = subschema.default;
+      }
   }
-  // TODO: Do we need to handle an undefined example?
-  //       json-schema-example-loader would set the example
-  //       to 'unknown' under some circumstances.
 }
 
 /**

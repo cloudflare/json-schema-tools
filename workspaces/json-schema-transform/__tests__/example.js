@@ -126,7 +126,6 @@ describe('example rollup', () => {
         properties: {
           foo: { example: 'x' },
           bar: { example: 1 },
-          private: { cfPrivate: true, example: true },
           omitted: { cfOmitFromExample: true, example: 54321 }
         }
       });
@@ -136,16 +135,51 @@ describe('example rollup', () => {
     });
 
     test('object with patternProperties and additionalProperties', () => {
-      // Note that currently, these keywords do not affect the example,
-      // but an empty example object is constructed.
       let [args, expected] = this.makeArgs({
         type: 'object',
+        properties: {
+          foo: { example: 0 }
+        },
         patternProperties: {
           '^x-': { example: 1 }
         },
         additionalProperties: { example: 2 }
       });
-      expected[0].example = {};
+
+      expected[0].example = { foo: 0 };
+      example.rollupExamples(...args);
+      expect(args).toEqual(expected);
+    });
+
+    test('ojbect without properties', () => {
+      let [args, expected] = this.makeArgs({
+        type: 'object'
+      });
+      example.rollupExamples(...args);
+      expect(args).toEqual(expected);
+    });
+
+    test('object with properties without any examples', () => {
+      let [args, expected] = this.makeArgs({
+        type: 'object',
+        properties: {
+          x: { type: 'integer' },
+          y: { type: 'string' }
+        }
+      });
+      example.rollupExamples(...args);
+      expect(args).toEqual(expected);
+    });
+
+    test('object with required property with no example', () => {
+      let [args, expected] = this.makeArgs({
+        type: 'object',
+        required: ['x'],
+        properties: {
+          x: { type: 'integer' },
+          y: { example: 1 }
+        }
+      });
       example.rollupExamples(...args);
       expect(args).toEqual(expected);
     });
@@ -168,12 +202,11 @@ describe('example rollup', () => {
         items: [
           { example: true },
           { example: { some: 'thing' } },
-          {},
           { example: 10 }
         ],
         minItems: 2
       });
-      expected[0].example = [true, { some: 'thing' }, undefined, 10];
+      expected[0].example = [true, { some: 'thing' }, 10];
       example.rollupExamples(...args);
       expect(args).toEqual(expected);
     });
@@ -184,35 +217,32 @@ describe('example rollup', () => {
         items: [
           { example: true },
           { example: { some: 'thing' } },
-          {},
           { example: 10 }
         ],
         additionalItems: {
           example: null
         }
       });
-      expected[0].example = [true, { some: 'thing' }, undefined, 10, null];
+      expected[0].example = [true, { some: 'thing' }, 10, null];
       example.rollupExamples(...args);
       expect(args).toEqual(expected);
     });
 
     test('array without items or *Of', () => {
-      // Note that additionalItems is ignored without items, so we only
-      // see the empty example array in the results.
+      // Note that additionalItems is ignored without items,
+      // so we still do not see a rolled up example.
       let [args, expected] = this.makeArgs({
         type: 'array',
         additionalItems: {
           example: 42
         }
       });
-      expected[0].example = [];
       example.rollupExamples(...args);
       expect(args).toEqual(expected);
     });
 
     test('array with minItems > 0 but no defined examples', () => {
       let [args, expected] = this.makeArgs({ type: 'array', minItems: 3 });
-      expected[0].example = [undefined, undefined, undefined];
       example.rollupExamples(...args);
       expect(args).toEqual(expected);
     });
@@ -249,6 +279,14 @@ describe('example rollup', () => {
         default: null
       });
       expected[0].example = null;
+      example.rollupExamples(...args);
+      expect(args).toEqual(expected);
+    });
+
+    test('scalar type without default', () => {
+      let [args, expected] = this.makeArgs({
+        type: 'number'
+      });
       example.rollupExamples(...args);
       expect(args).toEqual(expected);
     });
