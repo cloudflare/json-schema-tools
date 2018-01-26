@@ -80,7 +80,7 @@ function _determineType(subschema) {
  * are guaranteed * to have been visited, while adjacent subschemas in
  * the parent may not have been.
  */
-function rollupExamples(subschema, path, parent, parentPath) {
+function rollUpExamples(subschema, path, parent, parentPath) {
   if (
     subschema === true ||
     subschema === false ||
@@ -282,7 +282,7 @@ function getCurlExampleCallback(rootSchema, baseUri, globalHeaders) {
 }
 
 module.exports = {
-  rollupExamples,
+  rollUpExamples,
   getCurlExampleCallback,
   _determineType
 };

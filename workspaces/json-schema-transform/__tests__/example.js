@@ -46,7 +46,7 @@ describe('example rollup', () => {
     });
   });
 
-  describe('rollupExamples()', () => {
+  describe('rollUpExamples()', () => {
     beforeAll(() => {
       // "items" is arbitrary, it just needs to be a keyword that
       // takes a subschema as a value, and the same object (or boolean)
@@ -60,19 +60,19 @@ describe('example rollup', () => {
 
     test('boolean true schema', () => {
       let [args, unmodified] = this.makeArgs(true);
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(unmodified);
     });
 
     test('boolean false schema', () => {
       let [args, unmodified] = this.makeArgs(true);
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(unmodified);
     });
 
     test('example is present, type otherwise undetectable', () => {
       let [args, unmodified] = this.makeArgs({ example: 42 });
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(unmodified);
     });
 
@@ -82,7 +82,7 @@ describe('example rollup', () => {
         anyOf: [{ example: 'nope' }]
       });
       expected[0].example = 'hello';
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(expected);
     });
 
@@ -98,7 +98,7 @@ describe('example rollup', () => {
         ]
       });
       expected[0].example = 4;
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(expected);
     });
 
@@ -107,7 +107,7 @@ describe('example rollup', () => {
         oneOf: [{}, { example: 1 }]
       });
       expected[0].example = 1;
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(expected);
     });
 
@@ -116,7 +116,7 @@ describe('example rollup', () => {
         anyOf: [{ example: 'hello' }, { example: 'world' }]
       });
       expected[0].example = 'hello';
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(expected);
     });
 
@@ -130,7 +130,7 @@ describe('example rollup', () => {
         }
       });
       expected[0].example = { foo: 'x', bar: 1 };
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(expected);
     });
 
@@ -147,7 +147,7 @@ describe('example rollup', () => {
       });
 
       expected[0].example = { foo: 0 };
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(expected);
     });
 
@@ -155,7 +155,7 @@ describe('example rollup', () => {
       let [args, expected] = this.makeArgs({
         type: 'object'
       });
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(expected);
     });
 
@@ -167,7 +167,7 @@ describe('example rollup', () => {
           y: { type: 'string' }
         }
       });
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(expected);
     });
 
@@ -180,7 +180,7 @@ describe('example rollup', () => {
           y: { example: 1 }
         }
       });
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(expected);
     });
 
@@ -190,7 +190,7 @@ describe('example rollup', () => {
         items: { example: 42 }
       });
       expected[0].example = [42];
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(expected);
     });
 
@@ -207,7 +207,7 @@ describe('example rollup', () => {
         minItems: 2
       });
       expected[0].example = [true, { some: 'thing' }, 10];
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(expected);
     });
 
@@ -224,7 +224,7 @@ describe('example rollup', () => {
         }
       });
       expected[0].example = [true, { some: 'thing' }, 10, null];
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(expected);
     });
 
@@ -237,13 +237,13 @@ describe('example rollup', () => {
           example: 42
         }
       });
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(expected);
     });
 
     test('array with minItems > 0 but no defined examples', () => {
       let [args, expected] = this.makeArgs({ type: 'array', minItems: 3 });
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(expected);
     });
 
@@ -256,7 +256,7 @@ describe('example rollup', () => {
         minItems: 2
       });
       expected[0].example = [12345, 12345];
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(expected);
     });
 
@@ -270,7 +270,7 @@ describe('example rollup', () => {
         minItems: 4
       });
       expected[0].example = ['a', 'b', 'b', 'b'];
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(expected);
     });
 
@@ -279,7 +279,7 @@ describe('example rollup', () => {
         default: null
       });
       expected[0].example = null;
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(expected);
     });
 
@@ -287,7 +287,7 @@ describe('example rollup', () => {
       let [args, expected] = this.makeArgs({
         type: 'number'
       });
-      example.rollupExamples(...args);
+      example.rollUpExamples(...args);
       expect(args).toEqual(expected);
     });
   });
