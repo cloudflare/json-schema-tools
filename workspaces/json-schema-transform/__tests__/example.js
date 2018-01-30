@@ -388,7 +388,7 @@ describe('example rollup', () => {
 
     test('PUT JSON data, template vars, override headers', () => {
       let ldo = {
-        href: 'foos/{#/definitions/foo}/bars/{#/definitions/bar}',
+        href: 'foos/{foo}/bars/{bar}',
         method: 'PUT',
         schema: {
           type: 'object',
@@ -409,9 +409,9 @@ describe('example rollup', () => {
       };
       let schema = {
         links: [ldo],
-        definitions: {
-          foo: { example: 123 },
-          bar: { example: 456 }
+        example: {
+          foo: 123,
+          bar: 456
         }
       };
       let cb = example.getCurlExampleCallback(

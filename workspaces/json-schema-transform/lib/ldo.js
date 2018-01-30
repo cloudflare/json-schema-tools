@@ -58,60 +58,27 @@ function extractLdo(fields, schema) {
 }
 
 /**
- * Convert our non-standard URI Templates to RFC 6570 ones
- * and resolve the from the available data.  RFC-compliant
- * variable names will work as-is, while the following
- * steps are applied to doca-style JSON Pointer variables:
+ * Resolve URI Templates from supplied data.
  *
- * 1. Remove leading "#/definitions/" to avoid using the
- *    reserved "#" character and produce the primary
- *    variable name.
- * 2. If the variable ends with "identifier", replace
- *    that with "id", as our instance JSON always uses
- *    the shorter form.
+ * For draft-04 Hyper-Schemas, interpret dotted variable
+ * names as indexing further into objects or arrays.
  *
- * For both doca-compliant and RFC-compliant variables,
- * dotted variable names will be separated with each
- * component treated as another level of access.
+ * This is not part of the draft-04 spec, nor is the dot
+ * behavior directly specified by the URI Template spec.
+ * However, this is a common interpretation.
  *
- * Examples using the following data object to resolve variables:
- * {
- *   "id": "1234",
- *   "zone_id": "5678",
- *   "zone_identifier": "9999",
- *   "zone": {
- *     "id": "1010",
- *   },
- * }
+ * Currently, all Hyper-Schemas are assumed to be draft-04.
  *
- * A template of:
- *   "zones/{#/definitions/zone_identifier}/pagerules/{#/definitions/identifier}"
- * will produce:
- *   "zones/5678/pagerules/1234"
- *
- * A template of:
- *   "zones/{#/definitions/zone.identifier}/pagerules/{#/definitions/identifier}"
- * will produce:
- *   "zones/1010/pagerules/1234"
- *
- * A template of:
- *   "zones/{zone_identifier}"
- * will produce:
- *   "zones/9999"
- * because the variable is already RFC-compliant, so we do not examine
- * it for special "identifier" treatment.
+ * Starting in draft-07, the "templatePointers" field
+ * will be used, and will be supported directly through
+ * the (not yet existing) Hyper-Schema library.
  */
 function resolveUri(ldo, templateValues) {
   if (!ldo.href) {
     throw 'No href to resolve!';
   }
 
-  // Match only doca-compliant variables.
-  let template = ldo.href.replace(/{#\/definitions\/.+?}/g, match => {
-    // Strip off the prefix and truncate trailing 'identifier' to 'id'
-    return match.replace('{#/definitions/', '{').replace(/identifier}$/, 'id}');
-  });
-  return uriTemplates(template).fill(varName => {
+  return uriTemplates(ldo.href).fill(varName => {
     let components = varName.split('.');
     let value = templateValues || {};
     for (let c of components) {

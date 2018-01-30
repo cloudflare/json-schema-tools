@@ -83,9 +83,9 @@ describe('Merge root schema into "cfRecurse": "" schemas', () => {
 
     test('does not prune href definitions', () => {
       let testSchema = {
-        links: [{ href: 'with/variable/{#/definitions/identifier}' }],
+        links: [{ href: 'with/variable/{#/definitions/id}' }],
         definitions: {
-          identifier: { type: 'string' },
+          id: { type: 'string' },
           foo: { type: 'null' }
         }
       };

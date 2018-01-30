@@ -221,15 +221,6 @@ function rollUpExamples(subschema, path, parent, parentPath) {
  * for headers to use with all examples unless overridden.
  */
 function getCurlExampleCallback(rootSchema, baseUri, globalHeaders) {
-  // At this point we expect that the top-level definitions
-  // have been trimmed down to those needed for URI resolution,
-  // so grab all definition examples for use as URI template data.
-  // If there are extra definitions they will be harmless.
-  let templateVars = {};
-  for (let def in rootSchema.definitions || {}) {
-    templateVars[def] = rootSchema.definitions[def].example;
-  }
-
   return function(subschema, path, parent, parentPath) {
     // This only processes link request and response subschemas,
     // and we only want to process links that have already had
@@ -246,7 +237,7 @@ function getCurlExampleCallback(rootSchema, baseUri, globalHeaders) {
       let method = ldo.method ? ldo.method.toUpperCase() : 'GET';
 
       // TODO: Resolve against base URI according to RFC 3986.
-      let uri = baseUri + ldoUtils.resolveUri(ldo, templateVars);
+      let uri = baseUri + ldoUtils.resolveUri(ldo, rootSchema.example);
 
       let dataString = '';
       if (ldo.schema) {

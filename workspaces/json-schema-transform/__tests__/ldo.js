@@ -65,52 +65,18 @@ describe('Extract one or more LDOs from a hyper-schema', () => {
 
 describe('Resolve URI Templates', () => {
   beforeAll(() => {
-    // Note that "zone.id" should never be used, only the first five.
+    // Note that "zone.id" should never be used, only the nested zone id.
     this.data = {
       id: 1,
-      identifier: 2,
-      zone_id: 3,
-      zone_identifier: 4,
-      zone: { id: 5 },
-      'zone.id': 6,
-      nonIdVariable: 7
+      zone: { id: 2 },
+      'zone.id': 3
     };
   });
 
-  test('Flat namespace, JSON Pointers, identifier truncation', () => {
+  test('Nested namespace, mixed styles', () => {
     expect(
-      ldoLib.resolveUri(
-        {
-          href:
-            'zones/{#/definitions/zone_identifier}/pagerules/{#/definitions/identifier}'
-        },
-        this.data
-      )
-    ).toEqual('zones/3/pagerules/1');
-  });
-
-  test('RFC-compliant variables, no identifier truncation', () => {
-    expect(
-      ldoLib.resolveUri(
-        { href: 'zones/{zone_identifier}/pagerules/{identifier}' },
-        this.data
-      )
-    ).toEqual('zones/4/pagerules/2');
-  });
-
-  test('Nested namespace, identifier truncation, mixed styles', () => {
-    expect(
-      ldoLib.resolveUri(
-        { href: 'nonsense/{#/definitions/zone.id}/whatever/{zone.id}' },
-        this.data
-      )
-    ).toEqual('nonsense/5/whatever/5');
-  });
-
-  test('Variable that is not modified', () => {
-    expect(ldoLib.resolveUri({ href: '{nonIdVariable}' }, this.data)).toEqual(
-      '7'
-    );
+      ldoLib.resolveUri({ href: 'nonsense/{zone.id}/whatever/{id}' }, this.data)
+    ).toEqual('nonsense/2/whatever/1');
   });
 
   test('No data provided', () => {

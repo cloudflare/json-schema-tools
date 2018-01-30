@@ -124,3 +124,7 @@ links:
     schema:
         required: [id]
         cfRecurse: ""
+  - rel: self
+    href: "things/{id}"
+    method: DELETE
+    cfRequestHeaders: {}

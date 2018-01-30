@@ -282,3 +282,7 @@ links:
           - 1000: Some error
           - 1001: Some other error
           - 2001: A Space Oddysey
+  - rel: self
+    href: "things/{id}"
+    method: DELETE
+    cfRequestHeaders: {}

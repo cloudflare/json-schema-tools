@@ -432,3 +432,7 @@ links:
         cfLinkErrors:
           - 1000: Some error
           - 1001: Some other error
+  - rel: self
+    href: "things/{id}"
+    method: DELETE
+    cfRequestHeaders: {}
