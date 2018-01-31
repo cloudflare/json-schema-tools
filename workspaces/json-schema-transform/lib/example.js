@@ -70,6 +70,15 @@ function _determineType(subschema) {
  * array elements must have an example value.  Otherwise the
  * parent is not assigned an example.
  *
+ * Fields with cfOmitFromExample set to true will, as one
+ * might guess, be omitted from the rolled up example.
+ * Examples given for such fields may still be used outside
+ * of the roll up.
+ *
+ * Note that examples are still created for cfPrivate schemas
+ * and endpoints.  UIs should decide what, if anything, to do
+ * with such examples.
+ *
  * Some assumptions are made about types and complex schemas.
  *
  *    * If multiple "type" values are present, the first is used.
@@ -120,7 +129,6 @@ function rollUpExamples(subschema, path, parent, parentPath) {
 
       subschema.example = {};
       for (const prop in subschema.properties) {
-        // TODO: How does cfPrivate fit into this?
         if (!subschema.properties[prop].cfOmitFromExample) {
           if (subschema.properties[prop].hasOwnProperty('example')) {
             subschema.example[prop] = subschema.properties[prop].example;
