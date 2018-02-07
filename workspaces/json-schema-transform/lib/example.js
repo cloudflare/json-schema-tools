@@ -234,7 +234,11 @@ function getCurlExampleCallback(rootSchema, baseUri, globalHeaders) {
     // and we only want to process links that have already had
     // all of their subschemas processed.  So look for links
     // in the current subschema.
-    if (!subschema.links) {
+    //
+    // cfHidden schemas use links for titles but have no href
+    // or schema content, so always skip those no matter where
+    // in the schema we are.
+    if (rootSchema.cfHidden || !subschema.links) {
       return;
     }
 
