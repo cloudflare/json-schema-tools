@@ -54,4 +54,44 @@ describe('System Tests', () => {
     walker.schemaWalk(schema, null, cb);
     expect(schema).toEqual(expected);
   });
+
+  test('apiDoc', () => {
+    // This test should be equivalent to doing all of the above in sequence
+
+    // Path is relative to json-schema-transform/package.json
+    let schema = yaml.readSync('./__tests__/fixtures/system.yaml');
+    let expected = yaml.readSync('./__tests__/fixtures/system-curl.yaml');
+
+    transform.processApiDocSchema(schema, {
+      baseUri: 'https://example.com/api/',
+      globalRequestHeaders: {
+        example: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        }
+      }
+    });
+    expect(schema).toEqual(expected);
+  });
+
+  test('apiDoc with defaults', () => {
+    // Path is relative to json-schema-transform/package.json
+    let schema = yaml.readSync('./__tests__/fixtures/system.yaml');
+    let expected = yaml.readSync(
+      './__tests__/fixtures/system-curl-defaults.yaml'
+    );
+
+    // Ensure that we use the default meta-schema
+    delete schema.$schema;
+
+    // Test overridding the default lack of headers
+    schema.links[schema.links.length - 1].cfRequestHeaders = {
+      example: {
+        Accept: 'application/json, application/problem+json'
+      }
+    };
+
+    transform.processApiDocSchema(schema);
+    expect(schema).toEqual(expected);
+  });
 });
