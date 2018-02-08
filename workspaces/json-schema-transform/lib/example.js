@@ -1,3 +1,4 @@
+const stableStringify = require('json-stable-stringify');
 const ldoUtils = require('./ldo');
 
 /**
@@ -267,7 +268,8 @@ function getCurlExampleCallback(rootSchema, baseUri, globalHeaders) {
             dataString = `--form '${params.join(';')}'`;
           }
         } else {
-          dataString = `--data '${JSON.stringify(ldo.schema.example)}'`;
+          // Stable serialization for repeatable testing
+          dataString = `--data '${stableStringify(ldo.schema.example)}'`;
         }
       }
 
