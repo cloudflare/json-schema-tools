@@ -1,0 +1,20 @@
+{
+  "name": "@cloudflare/json-schema-apidoc-loader",
+  "version": "0.0.1",
+  "description": "\"Webpack loader applying transformations to dereferenced JSON Hyper-Schemas to make them more suitable for API documentation display\"",
+  "main": "lib/loader.js",
+  "author": "\"Henry Andrews <henry@cloudflare.com>\"",
+  "license": "BSD-3-Clause",
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "dependencies": {
+    "@cloudflare/json-schema-transform": "^0.0.1",
+    "loader-utils": "^1.1.0",
+    "schema-utils": "^0.4.3"
+  },
+  "devDependencies": {
+    "jest": "^20.0.4"
+  },
+  "private": true
+}
