@@ -3,8 +3,6 @@ const walker = require('@cloudflare/json-schema-walker');
 const transform = require('../index.js');
 
 describe('System Tests', () => {
-  beforeEach(() => {});
-
   test('mergeCfRecurse', () => {
     // Path is relative to json-schema-transform/package.json
     let schema = yaml.readSync('./__tests__/fixtures/system.yaml');

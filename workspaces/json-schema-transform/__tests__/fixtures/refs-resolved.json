@@ -1,0 +1,12 @@
+{
+  "id": "https://schemas.example.com/refs",
+  "$comment": "Each should resolve with the matching extension",
+  "allOf": [
+    {"title": "no extension but valid json"},
+    {"title": "json.json"},
+    {"title": "yaml.yaml"},
+    {"title": "json5.json5"},
+    {"title": "js.js"},
+    {"title": "withext.json"}
+  ]
+}

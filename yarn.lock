@@ -385,6 +385,10 @@ byline@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/byline/-/byline-5.0.0.tgz#741c5216468eadc457b03410118ad77de8c1ddb1"
 
+call-me-maybe@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.npmjs.org/call-me-maybe/-/call-me-maybe-1.0.1.tgz#26d208ea89e37b5cbde60250a15f031c16a4d66b"
+
 callsites@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/callsites/-/callsites-2.0.0.tgz#06eb84f00eea413da86affefacbffb36093b3c50"
@@ -524,6 +528,10 @@ combined-stream@^1.0.5, combined-stream@~1.0.5:
 command-join@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/command-join/-/command-join-2.0.0.tgz#52e8b984f4872d952ff1bdc8b98397d27c7144cf"
+
+commander@^2.7.1:
+  version "2.14.1"
+  resolved "https://registry.npmjs.org/commander/-/commander-2.14.1.tgz#2235123e37af8ca3c65df45b026dbd357b01b9aa"
 
 compare-func@^1.3.1:
   version "1.3.2"
@@ -770,7 +778,7 @@ debug@^2.6.8:
   dependencies:
     ms "2.0.0"
 
-debug@^3.1.0:
+debug@^3.0.0, debug@^3.1.0:
   version "3.1.0"
   resolved "https://registry.npmjs.org/debug/-/debug-3.1.0.tgz#5bb5a0672628b64149566ba16819e61518c67261"
   dependencies:
@@ -861,6 +869,10 @@ error-ex@^1.2.0, error-ex@^1.3.1:
   resolved "https://registry.yarnpkg.com/error-ex/-/error-ex-1.3.1.tgz#f855a86ce61adc4e8621c3cda21e7a7612c3a8dc"
   dependencies:
     is-arrayish "^0.2.1"
+
+es6-promise@^4.1.1:
+  version "4.2.4"
+  resolved "https://registry.npmjs.org/es6-promise/-/es6-promise-4.2.4.tgz#dc4221c2b16518760bd8c39a52d8f356fc00ed29"
 
 escape-string-regexp@^1.0.2, escape-string-regexp@^1.0.5:
   version "1.0.5"
@@ -1046,6 +1058,10 @@ form-data@~2.3.1:
     asynckit "^0.4.0"
     combined-stream "^1.0.5"
     mime-types "^2.1.12"
+
+format-util@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.npmjs.org/format-util/-/format-util-1.0.3.tgz#032dca4a116262a12c43f4c3ec8566416c5b2d95"
 
 fs-extra@^4.0.1:
   version "4.0.3"
@@ -1773,7 +1789,7 @@ js-yaml@3.9.1:
     argparse "^1.0.7"
     esprima "^4.0.0"
 
-js-yaml@^3.7.0:
+js-yaml@^3.7.0, js-yaml@^3.9.1:
   version "3.10.0"
   resolved "https://registry.npmjs.org/js-yaml/-/js-yaml-3.10.0.tgz#2e78441646bd4682e963f22b6e92823c309c62dc"
   dependencies:
@@ -1811,6 +1827,17 @@ jsdom@^9.12.0:
 jsesc@^1.3.0:
   version "1.3.0"
   resolved "https://registry.npmjs.org/jsesc/-/jsesc-1.3.0.tgz#46c3fec8c1892b12b0833db9bc7622176dbab34b"
+
+json-schema-ref-parser@^3.0.2:
+  version "3.3.1"
+  resolved "https://registry.npmjs.org/json-schema-ref-parser/-/json-schema-ref-parser-3.3.1.tgz#86e751b8099357bf601a7cfe42d10123ee906a32"
+  dependencies:
+    call-me-maybe "^1.0.1"
+    debug "^3.0.0"
+    es6-promise "^4.1.1"
+    js-yaml "^3.9.1"
+    ono "^4.0.2"
+    z-schema "^3.18.2"
 
 json-schema-traverse@^0.3.0:
   version "0.3.1"
@@ -1983,6 +2010,14 @@ locate-path@^2.0.0:
 lodash._reinterpolate@~3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/lodash._reinterpolate/-/lodash._reinterpolate-3.0.0.tgz#0ccf2d89166af03b3663c796538b75ac6e114d9d"
+
+lodash.get@^4.0.0:
+  version "4.4.2"
+  resolved "https://registry.npmjs.org/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
+
+lodash.isequal@^4.0.0:
+  version "4.5.0"
+  resolved "https://registry.npmjs.org/lodash.isequal/-/lodash.isequal-4.5.0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
 
 lodash.template@^4.0.2:
   version "4.4.0"
@@ -2236,6 +2271,12 @@ onetime@^2.0.0:
   resolved "https://registry.yarnpkg.com/onetime/-/onetime-2.0.1.tgz#067428230fd67443b2794b22bba528b6867962d4"
   dependencies:
     mimic-fn "^1.0.0"
+
+ono@^4.0.2:
+  version "4.0.3"
+  resolved "https://registry.npmjs.org/ono/-/ono-4.0.3.tgz#b36050f71b02841bfb59f368deab8b07375e2219"
+  dependencies:
+    format-util "^1.0.3"
 
 optimist@^0.6.1:
   version "0.6.1"
@@ -3036,6 +3077,10 @@ validate-npm-package-license@^3.0.1:
     spdx-correct "~1.0.0"
     spdx-expression-parse "~1.0.0"
 
+validator@^9.0.0:
+  version "9.4.1"
+  resolved "https://registry.npmjs.org/validator/-/validator-9.4.1.tgz#abf466d398b561cd243050112c6ff1de6cc12663"
+
 verror@1.10.0:
   version "1.10.0"
   resolved "https://registry.npmjs.org/verror/-/verror-1.10.0.tgz#3a105ca17053af55d6e270c1f8288682e18da400"
@@ -3233,3 +3278,13 @@ yargs@~3.10.0:
     cliui "^2.1.0"
     decamelize "^1.0.0"
     window-size "0.1.0"
+
+z-schema@^3.18.2:
+  version "3.19.1"
+  resolved "https://registry.npmjs.org/z-schema/-/z-schema-3.19.1.tgz#1faa828146d9365330031e962fbd071c7c6434ac"
+  dependencies:
+    lodash.get "^4.0.0"
+    lodash.isequal "^4.0.0"
+    validator "^9.0.0"
+  optionalDependencies:
+    commander "^2.7.1"

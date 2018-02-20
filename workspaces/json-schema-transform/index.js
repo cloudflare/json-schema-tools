@@ -3,6 +3,7 @@ var ldo = require('./lib/ldo');
 var allOf = require('./lib/allOf');
 var example = require('./lib/example');
 var apiDoc = require('./lib/apiDoc');
+var dereferencer = require('./lib/dereferencer');
 
 module.exports = {
   mergeCfRecurse: mergeCfRecurse.mergeCfRecurse,
@@ -17,6 +18,7 @@ module.exports = {
   rollUpExamples: example.rollUpExamples,
   getCurlExampleCallback: example.getCurlExampleCallback,
   processApiDocSchema: apiDoc.processApiDocSchema,
+  AutoExtensionDereferencer: dereferencer.AutoExtensionDereferencer,
 
   // TODO: These should probably be namespaced in some way
   //       as they do specific things with the keywords rather

@@ -1,0 +1,6 @@
+{
+  "id": "https://schemas.example.com/refs-dangling",
+  "allOf": [
+    {"$ref": "refs/nothing-to-see-here"}
+  ]
+}
