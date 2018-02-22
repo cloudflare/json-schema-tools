@@ -390,6 +390,11 @@ describe('example rollup', () => {
       let ldo = {
         href: 'foos/{foo}/bars/{bar}',
         method: 'PUT',
+        hrefSchema: {
+          example: {
+            bar: 456
+          }
+        },
         schema: {
           type: 'object',
           properties: {
@@ -407,13 +412,19 @@ describe('example rollup', () => {
           }
         }
       };
+
+      // Note that since the hrefSchema example is considered input data
+      // for curl example generation, the bar example there will be used
+      // rather than the bar example here in the instance data.
+      // However, foo is still resolved from the example here.
       let schema = {
         links: [ldo],
         example: {
           foo: 123,
-          bar: 456
+          bar: 0
         }
       };
+
       let cb = example.getCurlExampleCallback(
         schema,
         this.base,

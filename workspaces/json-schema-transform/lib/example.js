@@ -250,7 +250,13 @@ function getCurlExampleCallback(rootSchema, baseUri, globalHeaders) {
       let method = ldo.method ? ldo.method.toUpperCase() : 'GET';
 
       // TODO: Resolve against base URI according to RFC 3986.
-      let uri = baseUri + ldoUtils.resolveUri(ldo, rootSchema.example);
+      let uri =
+        baseUri +
+        ldoUtils.resolveUri(
+          ldo,
+          rootSchema.example,
+          ldo.hrefSchema && ldo.hrefSchema.example
+        );
 
       let dataString = '';
       if (ldo.schema) {
