@@ -71,17 +71,29 @@ describe('Resolve URI Templates', () => {
       zone: { id: 2 },
       'zone.id': 3
     };
+    this.input = {
+      zone: { id: 4 }
+    };
   });
 
   test('Nested namespace, mixed styles', () => {
     expect(
-      ldoLib.resolveUri({ href: 'nonsense/{zone.id}/whatever/{id}' }, this.data)
-    ).toEqual('nonsense/2/whatever/1');
+      ldoLib.resolveUri(
+        { href: 'nonsense/{zone.id}/whatever/{id}' },
+        this.data,
+        this.input
+      )
+    ).toEqual('nonsense/4/whatever/1');
   });
 
   test('No data provided', () => {
     // Unfilled template variables are removed per RFC.
     expect(ldoLib.resolveUri({ href: 'foo{?bar}' })).toEqual('foo');
+  });
+
+  test('Insufficient data provided', () => {
+    // Unfilled template variables are removed per RFC.
+    expect(ldoLib.resolveUri({ href: 'foo{?a.b.c}' }, { d: 1 })).toEqual('foo');
   });
 
   test('No href provided', () => {
