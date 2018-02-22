@@ -85,12 +85,13 @@ function _autoExtensionReader(file, callback) {
  * more intelligence around which reference is designated as circular.
  */
 class AutoExtensionDereferencer {
-  constructor(schema) {
-    if (!schema.startsWith('file://')) {
+  constructor(schemaPath, schemaData) {
+    if (!schemaPath.startsWith('file://')) {
       throw new Error("Currenty, only 'file://' URIs are supported.");
     }
     this._parser = new RefParser();
-    this._schema = schema;
+    this._schemaPath = schemaPath;
+    this._schemaData = schemaData;
   }
 
   /**
@@ -98,15 +99,20 @@ class AutoExtensionDereferencer {
    * be passed.
    */
   dereference() {
-    return this._parser.dereference(this._schema, {
-      resolve: {
-        http: {
-          order: 1,
-          canRead: _autoExtensionChecker,
-          read: _autoExtensionReader
+    return this._parser
+      .dereference(this._schemaPath, this._schemaData, {
+        resolve: {
+          http: {
+            order: 1,
+            canRead: _autoExtensionChecker,
+            read: _autoExtensionReader
+          }
         }
-      }
-    });
+      })
+      .then(schemaData => {
+        this._schemaData = schemaData;
+        return schemaData;
+      });
   }
 
   /**

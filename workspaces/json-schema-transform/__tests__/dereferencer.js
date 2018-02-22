@@ -48,16 +48,38 @@ describe('Dereferencer system test', () => {
     this.expectedDependencies.sort(this.dependenciesCmp);
   });
 
-  test('AutoExtensionDereferencer', async () => {
+  test('Dereference by schema URI', async () => {
     let aed = new transform.AutoExtensionDereferencer(this.schemaUri);
     let dereferenced = await aed.dereference();
 
     expect(dereferenced).toEqual(this.expectedSchema);
 
+    // While not currently public, check that we save the parsed object.
+    expect(dereferenced).toEqual(aed._schemaData);
+
     let dependencies = aed.getDependencies();
     dependencies.sort(this.dependenciesCmp);
 
     expect(dependencies).toEqual(this.expectedDependencies);
+  });
+
+  test('Dereference with parsed data', async () => {
+    let parsedSchema = JSON.parse(
+      fs.readFileSync(path.join(this.fixtureDir, 'refs.json'))
+    );
+
+    // Give it a path that doesn't exist, as the underlying code
+    // should ignore it in favor of the parsed data, and just
+    // use it for resolving relative references. So just switch
+    // it to .yaml which is not present on the filesystem.
+    let aed = new transform.AutoExtensionDereferencer(
+      this.schemaUri.replace(/json$/, 'yaml'),
+      parsedSchema
+    );
+    let dereferenced = await aed.dereference();
+
+    expect(dereferenced).toEqual(this.expectedSchema);
+    expect(dereferenced).toEqual(aed._schemaData);
   });
 
   test('Require file:// URI', () => {
