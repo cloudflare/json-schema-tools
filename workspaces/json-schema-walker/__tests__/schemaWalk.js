@@ -186,6 +186,15 @@ describe('Walk subschemas', () => {
               }
             }
           }
+        },
+        {
+          hrefSchema: { title: 'hrefSchema schema' }
+        },
+        {
+          submissionSchema: { title: 'submissionSchema schema' }
+        },
+        {
+          headerSchema: { title: 'headerSchema schema' }
         }
       ]
     };
@@ -206,7 +215,14 @@ describe('Walk subschemas', () => {
         ['patternProperties', '^foo'],
         ['links', 1, 'targetSchema']
       ],
-      [testSchema.links[1].targetSchema, ['links', 1, 'targetSchema'], []]
+      [testSchema.links[1].targetSchema, ['links', 1, 'targetSchema'], []],
+      [testSchema.links[2].hrefSchema, ['links', 2, 'hrefSchema'], []],
+      [
+        testSchema.links[3].submissionSchema,
+        ['links', 3, 'submissionSchema'],
+        []
+      ],
+      [testSchema.links[4].headerSchema, ['links', 4, 'headerSchema'], []]
     ]);
   });
 

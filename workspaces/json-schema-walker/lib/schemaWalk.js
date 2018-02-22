@@ -122,7 +122,16 @@ var _processSchemaKeyword = function(
 var _processLinks = function(schema, preFunc, postFunc, parentPath) {
   for (let i = 0; i < schema.links.length; i++) {
     let ldo = schema.links[i];
-    for (let ldoSchemaProp of ['schema', 'targetSchema']) {
+
+    // Includes draft-04 and draft-07 keywords.
+    // TODO: vocabulary selection
+    for (let ldoSchemaProp of [
+      'schema',
+      'targetSchema',
+      'hrefSchema',
+      'submissionSchema',
+      'headerSchema'
+    ]) {
       if (ldo.hasOwnProperty(ldoSchemaProp)) {
         try {
           _apply(
