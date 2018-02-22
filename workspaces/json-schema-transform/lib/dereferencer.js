@@ -12,10 +12,10 @@ const RefParser = require('json-schema-ref-parser');
 function _findExtension(url) {
   // Include '' first so that we notice if there is an
   // existing file and don't look further.
-  let extensions = ['', '.json', '.yaml', '.json5', '.js'];
+  const extensions = ['', '.json', '.yaml', '.json5', '.js'];
 
-  for (let ext of extensions) {
-    let localPath = url.slice('file://'.length) + ext;
+  for (const ext of extensions) {
+    const localPath = url.slice('file://'.length) + ext;
     if (fs.existsSync(localPath) && fs.statSync(localPath).isFile()) {
       return ext;
     }
@@ -31,7 +31,7 @@ function _findExtension(url) {
  */
 function _autoExtensionChecker(file) {
   if (/^file:\/\//.test(file.url) && !file.extension) {
-    let extension = _findExtension(file.url);
+    const extension = _findExtension(file.url);
     if (extension) {
       file.extension = extension;
       file.url = file.url.slice('file://'.length) + extension;

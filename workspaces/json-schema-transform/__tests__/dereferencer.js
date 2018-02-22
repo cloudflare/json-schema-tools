@@ -4,8 +4,7 @@ const transform = require('../index.js');
 
 describe('Dereferencer system test', () => {
   beforeAll(() => {
-    // Current working directory is based on json-schema-transform/package.json
-    this.fixtureDir = path.join(process.cwd(), '__tests__', 'fixtures');
+    this.fixtureDir = path.join(__dirname, 'fixtures');
     this.refDir = path.join(this.fixtureDir, 'refs');
     this.schemaLocalPath = path.join(this.fixtureDir, 'refs.json');
     this.schemaUri = 'file://' + this.schemaLocalPath;

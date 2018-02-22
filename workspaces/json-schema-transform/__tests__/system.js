@@ -4,19 +4,19 @@ const transform = require('../index.js');
 
 describe('System Tests', () => {
   test('mergeCfRecurse', () => {
-    // Path is relative to json-schema-transform/package.json
-    let schema = yaml.readSync('./__tests__/fixtures/system.yaml');
+    let schema = yaml.readSync(__dirname + '/fixtures/system.yaml');
     let expected = yaml.readSync(
-      './__tests__/fixtures/system-no-cfrecurse.yaml'
+      __dirname + '/fixtures/system-no-cfrecurse.yaml'
     );
     transform.mergeCfRecurse(schema);
     expect(schema).toEqual(expected);
   });
 
   test('collapseAllOf', () => {
-    // Path is relative to json-schema-transform/package.json
-    let schema = yaml.readSync('./__tests__/fixtures/system-no-cfrecurse.yaml');
-    let expected = yaml.readSync('./__tests__/fixtures/system-no-allof.yaml');
+    let schema = yaml.readSync(
+      __dirname + '/fixtures/system-no-cfrecurse.yaml'
+    );
+    let expected = yaml.readSync(__dirname + '/fixtures/system-no-allof.yaml');
     let cb = transform.getCollapseAllOfCallback(
       schema.$schema,
       transform.CLOUDFLARE_DOCA
@@ -26,18 +26,16 @@ describe('System Tests', () => {
   });
 
   test('rollupExamples', () => {
-    // Path is relative to json-schema-transform/package.json
-    let schema = yaml.readSync('./__tests__/fixtures/system-no-allof.yaml');
-    let expected = yaml.readSync('./__tests__/fixtures/system-examples.yaml');
+    let schema = yaml.readSync(__dirname + '/fixtures/system-no-allof.yaml');
+    let expected = yaml.readSync(__dirname + '/fixtures/system-examples.yaml');
 
     walker.schemaWalk(schema, null, transform.rollUpExamples);
     expect(schema).toEqual(expected);
   });
 
   test('curlExample', () => {
-    // Path is relative to json-schema-transform/package.json
-    let schema = yaml.readSync('./__tests__/fixtures/system-examples.yaml');
-    let expected = yaml.readSync('./__tests__/fixtures/system-curl.yaml');
+    let schema = yaml.readSync(__dirname + '/fixtures/system-examples.yaml');
+    let expected = yaml.readSync(__dirname + '/fixtures/system-curl.yaml');
 
     let cb = transform.getCurlExampleCallback(
       schema,
@@ -56,9 +54,8 @@ describe('System Tests', () => {
   test('apiDoc', () => {
     // This test should be equivalent to doing all of the above in sequence
 
-    // Path is relative to json-schema-transform/package.json
-    let schema = yaml.readSync('./__tests__/fixtures/system.yaml');
-    let expected = yaml.readSync('./__tests__/fixtures/system-curl.yaml');
+    let schema = yaml.readSync(__dirname + '/fixtures/system.yaml');
+    let expected = yaml.readSync(__dirname + '/fixtures/system-curl.yaml');
 
     transform.processApiDocSchema(schema, {
       baseUri: 'https://example.com/api/',
@@ -73,10 +70,9 @@ describe('System Tests', () => {
   });
 
   test('apiDoc with defaults', () => {
-    // Path is relative to json-schema-transform/package.json
-    let schema = yaml.readSync('./__tests__/fixtures/system.yaml');
+    let schema = yaml.readSync(__dirname + '/fixtures/system.yaml');
     let expected = yaml.readSync(
-      './__tests__/fixtures/system-curl-defaults.yaml'
+      __dirname + '/fixtures/system-curl-defaults.yaml'
     );
 
     // Ensure that we use the default meta-schema
