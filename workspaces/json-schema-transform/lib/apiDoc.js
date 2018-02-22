@@ -30,7 +30,7 @@ const example = require('./example');
  *      with every request.  The header schemas should have "example"
  *      fields that are used to generate example requests.  These
  *      defaults can be overridden (not extended) for each link
- *      with the "cfRequestHeaders" keyword.
+ *      with the "headerSchema" keyword.
  *
  * Notable limitations aside from not allowing references include:
  *  - Some "allOf" combinations cannot be collapsed, and we currently

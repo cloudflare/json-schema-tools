@@ -79,9 +79,9 @@ describe('System Tests', () => {
     delete schema.$schema;
 
     // Test overridding the default lack of headers
-    schema.links[schema.links.length - 1].cfRequestHeaders = {
+    schema.links[schema.links.length - 1].headerSchema = {
       example: {
-        Accept: 'application/json, application/problem+json'
+        accept: 'application/json, application/problem+json'
       }
     };
 

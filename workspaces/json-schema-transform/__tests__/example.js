@@ -296,20 +296,20 @@ describe('example rollup', () => {
     beforeAll(() => {
       this.base = 'https://example.com/api/';
       this.globalHeaders = {
-        required: ['Content-Type', 'X-Auth-Email', 'X-Auth-Key'],
+        required: ['content-type', 'x-auth-email', 'x-auth-key'],
         properties: {
-          'X-Auth-Email': {
+          'x-auth-email': {
             type: 'string',
             description: 'Your Cloudflare email',
             example: 'user@example.com'
           },
-          'X-Auth-Key': {
+          'x-auth-key': {
             type: 'string',
             length: 45,
             description: 'Your Cloudflare API key',
             example: 'c2547eb745079dac9320b638f5e225cf483cc5cfdda41'
           },
-          'Content-Type': {
+          'content-type': {
             type: 'string',
             enum: ['application/json'],
             example: 'application/json',
@@ -317,9 +317,9 @@ describe('example rollup', () => {
           }
         },
         example: {
-          'X-Auth-Email': 'user@example.com',
-          'X-Auth-Key': 'c2547eb745079dac9320b638f5e225cf483cc5cfdda41',
-          'Content-Type': 'application/json'
+          'x-auth-email': 'user@example.com',
+          'x-auth-key': 'c2547eb745079dac9320b638f5e225cf483cc5cfdda41',
+          'content-type': 'application/json'
         }
       };
       this.globalHeadersExpected =
@@ -332,7 +332,7 @@ describe('example rollup', () => {
     test('defaulted GET, no query string, no headers', () => {
       let ldo = {
         href: 'foos',
-        cfRequestHeaders: {}
+        headerSchema: {}
       };
       let schema = { links: [ldo] };
 
@@ -398,12 +398,12 @@ describe('example rollup', () => {
           },
           example: { x: 2, y: true }
         },
-        cfRequestHeaders: {
+        headerSchema: {
           properties: {
-            Accept: { example: 'application/json' }
+            accept: { example: 'application/json' }
           },
           example: {
-            Accept: 'application/json'
+            accept: 'application/json'
           }
         }
       };

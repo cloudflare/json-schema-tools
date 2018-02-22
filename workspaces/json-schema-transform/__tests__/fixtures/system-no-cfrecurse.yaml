@@ -435,4 +435,4 @@ links:
   - rel: self
     href: "things/{id}"
     method: DELETE
-    cfRequestHeaders: {}
+    headerSchema: {}

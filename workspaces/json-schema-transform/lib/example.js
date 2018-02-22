@@ -263,6 +263,8 @@ function getCurlExampleCallback(rootSchema, baseUri, globalHeaders) {
             params.push(`${param}=${value}`);
           }
           if (method === 'GET') {
+            // TODO: Handle URIs with query in place while we transition
+            //       from draft-04 schema + method to draft-07 hrefSchema.
             uri += `?${params.join('&')}`;
           } else {
             dataString = `--form '${params.join(';')}'`;
@@ -277,13 +279,16 @@ function getCurlExampleCallback(rootSchema, baseUri, globalHeaders) {
 
       // Note: local headers override completely, allowing clearing
       // global headers by setting "cfHeaders": {}
-      let headers = ldo.cfRequestHeaders || globalHeaders || {};
+      let headers = ldo.headerSchema || globalHeaders || {};
 
       // Sort for predictable testing
       Object.entries(headers.example || {})
         .sort()
         .forEach(([header, value]) => {
-          ldo.cfCurl += ` \\\n     -H "${header}: ${value}"`;
+          const titleCased = header.replace(/(?:^|-)[a-z]/g, match => {
+            return match.toUpperCase();
+          });
+          ldo.cfCurl += ` \\\n     -H "${titleCased}: ${value}"`;
         });
       if (dataString) {
         ldo.cfCurl += ` \\\n     ${dataString}`;
