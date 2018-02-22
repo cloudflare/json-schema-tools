@@ -281,6 +281,18 @@ links:
   - rel: self
     href: "things/{id}"
     method: PUT
+    headerSchema:
+        properties:
+            accept:
+                example: application/json
+            "content-type":
+                example: application/json
+            prefer:
+                example: return=minimal
+        example:
+            accept: application/json
+            "content-type": application/json
+            prefer: return=minimal
     schema:
         $id: "https://example.cloudflare.com/json-schema-transform/systemtest"
         $schema: "http://json-schema.org/draft-04/hyper-schema#"

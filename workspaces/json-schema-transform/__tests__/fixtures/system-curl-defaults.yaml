@@ -280,7 +280,19 @@ links:
   - rel: self
     href: "things/{id}"
     method: PUT
-    cfCurl: "curl -X PUT \"things/0123456789abcdef0a1b2c3d4e5f9876\" \\\n     --data '{\"complicated\":\"127.0.0.1\",\"foo\":{\"bar\":-8,\"stuff\":[0,0,0]},\"id\":\"0123456789abcdef0a1b2c3d4e5f9876\",\"oof\":true}'"
+    cfCurl: "curl -X PUT \"things/0123456789abcdef0a1b2c3d4e5f9876\" \\\n     -H \"Accept: application/json\" \\\n     -H \"Content-Type: application/json\" \\\n     -H \"Prefer: return=minimal\" \\\n     --data '{\"complicated\":\"127.0.0.1\",\"foo\":{\"bar\":-8,\"stuff\":[0,0,0]},\"id\":\"0123456789abcdef0a1b2c3d4e5f9876\",\"oof\":true}'"
+    headerSchema:
+        properties:
+            accept:
+                example: application/json
+            "content-type":
+                example: application/json
+            prefer:
+                example: return=minimal
+        example:
+            accept: application/json
+            "content-type": application/json
+            prefer: return=minimal
     schema:
         $id: "https://example.cloudflare.com/json-schema-transform/systemtest"
         title: System Test

@@ -121,6 +121,14 @@ links:
   - rel: self
     href: "things/{id}"
     method: PUT
+    headerSchema:
+        properties:
+            accept:
+                example: application/json
+            "content-type":
+                example: application/json
+            prefer:
+                example: return=minimal
     schema:
         required: [id]
         cfRecurse: ""
