@@ -14,7 +14,7 @@ module.exports = function(source) {
         description:
           'The URI used as the base for resolving example URIs from link hrefs'
       },
-      globalRequestHeaders: {
+      globalHeaderSchema: {
         type: 'object',
         description:
           'JSON Schemas for HTTP request headers to use with examples unless overridden by cfRequestHeaders'

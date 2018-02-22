@@ -25,7 +25,7 @@ const example = require('./example');
  *      in order for RFC 3986 URI reference resolution to be functionally
  *      equivalent to string concatenation.  Otherwise many people find
  *      the results to be counter-intuitive.
- *  - globalRequestHeaders:
+ *  - globalHeaderSchema:
  *      A schema for headers that, by default, should always be sent
  *      with every request.  The header schemas should have "example"
  *      fields that are used to generate example requests.  These
@@ -72,7 +72,7 @@ function processApiDocSchema(schema, options) {
   let curlCallback = example.getCurlExampleCallback(
     schema,
     (options && options.baseUri) || '',
-    (options && options.globalRequestHeaders) || {}
+    (options && options.globalHeaderSchema) || {}
   );
   walker.schemaWalk(schema, null, curlCallback);
   return schema;

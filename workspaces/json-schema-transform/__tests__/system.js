@@ -59,7 +59,7 @@ describe('System Tests', () => {
 
     transform.processApiDocSchema(schema, {
       baseUri: 'https://example.com/api/',
-      globalRequestHeaders: {
+      globalHeaderSchema: {
         example: {
           Accept: 'application/json',
           'Content-Type': 'application/json'
