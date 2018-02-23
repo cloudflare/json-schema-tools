@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 import schemas from './schemas';
 
 const docs = combineReducers({
-  schemas,
+  schemas
 });
 
 export default docs;

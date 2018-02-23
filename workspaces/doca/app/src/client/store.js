@@ -7,10 +7,13 @@ import schemas from '../../schemas';
 import { ACTIONS } from './constants';
 
 function configureStore(reducer, initialState) {
-  const store = createStore(reducer, initialState,
-    (typeof window === 'object' &&
-      typeof window.devToolsExtension !== 'undefined') ?
-        window.devToolsExtension() : f => f
+  const store = createStore(
+    reducer,
+    initialState,
+    typeof window === 'object' &&
+    typeof window.devToolsExtension !== 'undefined'
+      ? window.devToolsExtension()
+      : f => f
   );
   return store;
 }
@@ -24,7 +27,7 @@ if (module.hot) {
       const data = require('../../schemas').default;
       store.dispatch({
         type: ACTIONS.REINIT_SCHEMAS,
-        payload: data,
+        payload: data
       });
     } catch (e) {
       console.log(e);

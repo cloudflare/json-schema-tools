@@ -5,11 +5,23 @@ import config from '../../config';
 
 // this dynamically imports css, less and sass from the "THEME/styles"
 try {
-  const reqCSS = require.context('doca-bootstrap-theme/styles', true, /\.css$/ig);
+  const reqCSS = require.context(
+    'doca-bootstrap-theme/styles',
+    true,
+    /\.css$/gi
+  );
   reqCSS.keys().forEach(reqCSS);
-  const reqLESS = require.context('doca-bootstrap-theme/styles', true, /\.less$/ig);
+  const reqLESS = require.context(
+    'doca-bootstrap-theme/styles',
+    true,
+    /\.less$/gi
+  );
   reqLESS.keys().forEach(reqLESS);
-  const reqSASS = require.context('doca-bootstrap-theme/styles', true, /\.scss$/ig);
+  const reqSASS = require.context(
+    'doca-bootstrap-theme/styles',
+    true,
+    /\.scss$/gi
+  );
   reqSASS.keys().forEach(reqSASS);
 } catch (e) {
   // no theme styles were found
@@ -18,11 +30,9 @@ try {
 const mapStateToProps = state => ({
   schemas: state.schemas,
   config,
-  introduction: Introduction,
+  introduction: Introduction
 });
 
-const Main = connect(
-  mapStateToProps,
-)(App);
+const Main = connect(mapStateToProps)(App);
 
 export default Main;

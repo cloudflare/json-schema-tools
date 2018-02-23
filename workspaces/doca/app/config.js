@@ -13,20 +13,16 @@ export default {
     requestHeaders: {
       // This is a JSON Schema which treats the HTTP request
       // headers as if they were a JSON object instance.
-      required: [
-        'Content-Type',
-      ],
+      required: ['Content-Type'],
       properties: {
         // Include other headers here, such as for auth
         'Content-Type': {
           type: 'string',
-          enum: [
-            'application/json',
-          ],
+          enum: ['application/json'],
           example: 'application/json',
-          description: 'Content type of the API request',
-        },
-      },
-    },
-  },
+          description: 'Content type of the API request'
+        }
+      }
+    }
+  }
 };

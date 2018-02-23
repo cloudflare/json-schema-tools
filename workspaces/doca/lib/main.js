@@ -13,22 +13,32 @@ program
   .command('init')
   .option(
     '-t, --theme <theme>',
-    `Doca theme. Must be the full package name if @scoped. ${chalk.grey('Default')}: ${chalk.green('bootstrap')}`
+    `Doca theme. Must be the full package name if @scoped. ${chalk.grey(
+      'Default'
+    )}: ${chalk.green('bootstrap')}`
   )
   .option(
     '-i, --input <input>',
-    `Folder with JSON HyperSchemas. ${chalk.grey('Default')}: It goes through the current dir.`
+    `Folder with JSON HyperSchemas. ${chalk.grey(
+      'Default'
+    )}: It goes through the current dir.`
   )
   .option(
     '-o, --output <output>',
-    `Doca project name. ${chalk.grey('Default')}: ${chalk.green('documentation')}`
+    `Doca project name. ${chalk.grey('Default')}: ${chalk.green(
+      'documentation'
+    )}`
   )
   .description('initialize a new doca project')
-  .action(function (args) { init(args.theme, args.input, args.output); });
+  .action(function(args) {
+    init(args.theme, args.input, args.output);
+  });
 
 program
   .command('theme <newTheme> <project>')
-  .description('set project <project> theme to <newTheme>; note that @namespaced theme packages must be given with their full package name')
+  .description(
+    'set project <project> theme to <newTheme>; note that @namespaced theme packages must be given with their full package name'
+  )
   .action(setTheme);
 
 if (!process.argv.slice(2).length) {

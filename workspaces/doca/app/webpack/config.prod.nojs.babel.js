@@ -5,7 +5,7 @@ import config from './config.prod.babel';
 config.plugins.unshift(
   new webpack.DefinePlugin({
     IS_JAVASCRIPT: false,
-    LAST_MODIFIED: Date.now(),
+    LAST_MODIFIED: Date.now()
   })
 );
 

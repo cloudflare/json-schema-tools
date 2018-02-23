@@ -12,28 +12,29 @@ import config from '../../config';
  * customize or replace this!
  */
 class Introduction extends Component {
-
   render() {
     return (
       <div>
         <article className="section api-section">
           <p>
-            <small>Last modified: {(new Date(LAST_MODIFIED)).toDateString()}</small>
+            <small>
+              Last modified: {new Date(LAST_MODIFIED).toDateString()}
+            </small>
           </p>
           <h2>Getting started</h2>
 
           <p>Lorem ipsum...</p>
         </article>
         <article className="section api-section">
-            <a className="anchor2" id="getting-started-endpoints">
-              getting-started-endpoints
-            </a>
-            <h2>Endpoints</h2>
+          <a className="anchor2" id="getting-started-endpoints">
+            getting-started-endpoints
+          </a>
+          <h2>Endpoints</h2>
 
-            <p>Lorem ipsum...</p>
+          <p>Lorem ipsum...</p>
 
-            <p>The base URL for all endpoints in this API is:</p>
-            <p className="CodeMirror cm-s-default">{config.curl.baseUrl}</p>
+          <p>The base URL for all endpoints in this API is:</p>
+          <p className="CodeMirror cm-s-default">{config.curl.baseUrl}</p>
         </article>
 
         <article className="section api-section">
@@ -51,7 +52,6 @@ class Introduction extends Component {
           <h2>Responses</h2>
           <p>Lorem ipsum...</p>
         </article>
-
       </div>
     );
   }
