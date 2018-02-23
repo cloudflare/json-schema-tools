@@ -12,8 +12,8 @@ function replaceSchemasAndTheme(theme, input, output, schemas) {
   var prefix = path.normalize('../'.repeat(subFolders) + (input || ''));
   console.log(chalk.green('Customizing doca project files:'));
   replace({
-    regex: '###schemas###',
-    replacement: schemas
+    regex: '// *###schemas###',
+    replacement: '  ,\n' + schemas
       .map(function (schema) { return `  require('${path.join(prefix, schema)}')`; })
       .join(',\n'),
     paths: [path.join(output, 'schemas.js')],
