@@ -57,8 +57,8 @@ export default {
         test: /\.json$/,
         exclude: path.resolve(__dirname, '../node_modules'),
         use: [
-          `json-schema-example-loader?${JSON.stringify(config)}`,
-          'json-schema-loader'
+          `@cloudflare/json-schema-apidoc-loader?${JSON.stringify(config)}`,
+          '@cloudflare/json-schema-ref-loader'
         ]
       }
     ]

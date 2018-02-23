@@ -16,6 +16,8 @@
     "lint": "eslint src webpack || true"
   },
   "dependencies": {
+    "@cloudflare/json-schema-apidoc-loader": "^0.0.1",
+    "@cloudflare/json-schema-ref-loader": "^0.0.1",
     "babel-core": "^6.8.0",
     "babel-eslint": "^7.1.1",
     "babel-loader": "^6.2.4",
@@ -42,8 +44,6 @@
     "immutable": "^3.8.1",
     "ip": "^1.1.3",
     "json-loader": "^0.5.4",
-    "json-schema-example-loader": "^3.0.0",
-    "json-schema-loader": "^1.0.0",
     "less": "^2.5.1",
     "less-loader": "^2.0.0",
     "lodash": "^4.13.1",
