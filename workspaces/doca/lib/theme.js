@@ -31,15 +31,15 @@ function replaceTheme(theme, project) {
 
 function installTheme(theme, project) {
   console.log(
-    `Trying to npm install ${chalk.green(theme)} for project ${chalk.green(
+    `Trying to yarn add ${chalk.green(theme)} for project ${chalk.green(
       project
     )}...`
   );
-  exec(`npm install ${theme} --save`, { cwd: project }, function(err, stdout) {
+  exec(`yarn add ${theme}`, { cwd: project }, function(err, stdout) {
     if (err) {
       console.error(
         chalk.red(
-          `Error when npm installing theme ${theme}.\n${err.message}\n${stdout}`
+          `Error when 'yarn add'-ing theme ${theme}.\n${err.message}\n${stdout}`
         )
       );
     } else {

@@ -5,14 +5,14 @@
   "license": "None",
   "private": true,
   "engines": {
-    "node": ">= 4.0.0",
-    "npm": ">= 2.0.0"
+    "node": ">= 6.0.0",
+    "yarn": ">= 1.0.0"
   },
   "scripts": {
     "clean": "rm -rf build",
     "start": "node webpack/index | NODE_ENV=development node src/server",
-    "build": "npm run clean && NODE_ENV=production webpack --config webpack/config.prod.withjs.babel.js && rm build/static-*",
-    "build:nojs": "npm run clean && NODE_ENV=production webpack --config webpack/config.prod.nojs.babel.js && rm build/static-* && rm build/app-*.js",
+    "build": "yarn run clean && NODE_ENV=production webpack --config webpack/config.prod.withjs.babel.js && rm build/static-*",
+    "build:nojs": "yarn run clean && NODE_ENV=production webpack --config webpack/config.prod.nojs.babel.js && rm build/static-* && rm build/app-*.js",
     "lint": "eslint src webpack || true"
   },
   "dependencies": {
