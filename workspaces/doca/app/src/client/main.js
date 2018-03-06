@@ -1,24 +1,24 @@
 import { connect } from 'react-redux';
-import { App } from 'doca-bootstrap-theme';
+import { App } from '@cloudflare/doca-default-theme';
 import Introduction from './introduction';
 import config from '../../config';
 
 // this dynamically imports css, less and sass from the "THEME/styles"
 try {
   const reqCSS = require.context(
-    'doca-bootstrap-theme/styles',
+    '@cloudflare/doca-default-theme/styles',
     true,
     /\.css$/gi
   );
   reqCSS.keys().forEach(reqCSS);
   const reqLESS = require.context(
-    'doca-bootstrap-theme/styles',
+    '@cloudflare/doca-default-theme/styles',
     true,
     /\.less$/gi
   );
   reqLESS.keys().forEach(reqLESS);
   const reqSASS = require.context(
-    'doca-bootstrap-theme/styles',
+    '@cloudflare/doca-default-theme/styles',
     true,
     /\.scss$/gi
   );

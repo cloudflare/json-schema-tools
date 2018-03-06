@@ -15,7 +15,7 @@ program
     '-t, --theme <theme>',
     `Doca theme. Must be the full package name if @scoped. ${chalk.grey(
       'Default'
-    )}: ${chalk.green('bootstrap')}`
+    )}: ${chalk.green('@cloudflare/doca-default-theme')}`
   )
   .option(
     '-i, --input <input>',
@@ -29,9 +29,13 @@ program
       'documentation'
     )}`
   )
+  .option(
+    '-d, --dev',
+    `Development mode.  Link the theme instead of adding it.`
+  )
   .description('initialize a new doca project')
   .action(function(args) {
-    init(args.theme, args.input, args.output);
+    init(args.theme, args.input, args.output, args.dev);
   });
 
 program

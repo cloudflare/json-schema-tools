@@ -3,7 +3,7 @@
 import React, { PropTypes } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { Provider } from 'react-redux';
-import { Head } from 'doca-bootstrap-theme';
+import { Head } from '@cloudflare/doca-default-theme';
 import Main from '../src/client/main';
 import store from '../src/client/store';
 import config from '../config';

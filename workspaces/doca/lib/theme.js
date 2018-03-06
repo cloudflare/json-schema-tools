@@ -29,13 +29,13 @@ function replaceTheme(theme, project) {
   }
 }
 
-function installTheme(theme, project) {
+function installTheme(theme, project, dev) {
   console.log(
-    `Trying to yarn add ${chalk.green(theme)} for project ${chalk.green(
+    `Trying to yarn ${dev ? 'link' : 'add'} ${chalk.green(theme)} for project ${chalk.green(
       project
     )}...`
   );
-  exec(`yarn add ${theme}`, { cwd: project }, function(err, stdout) {
+  exec(`yarn ${dev ? 'link' : 'add'} ${theme}`, { cwd: project }, function(err, stdout) {
     if (err) {
       console.error(
         chalk.red(
@@ -61,7 +61,7 @@ function normalizeName(theme) {
   return themeName;
 }
 
-function setTheme(theme, project) {
+function setTheme(theme, project, dev) {
   var projectFolder = path.normalize(project);
   var themeName = normalizeName(theme);
 
@@ -71,7 +71,7 @@ function setTheme(theme, project) {
         `Folder (project) ${chalk.red(projectFolder)} does not exist!`
       );
     } else {
-      installTheme(themeName, projectFolder);
+      installTheme(themeName, projectFolder, dev);
     }
   });
 }
