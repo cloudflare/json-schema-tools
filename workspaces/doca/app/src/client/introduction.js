@@ -34,7 +34,7 @@ class Introduction extends Component {
           <p>Lorem ipsum...</p>
 
           <p>The base URL for all endpoints in this API is:</p>
-          <p className="CodeMirror cm-s-default">{config.curl.baseUrl}</p>
+          <p className="CodeMirror cm-s-default">{config.baseUri}</p>
         </article>
 
         <article className="section api-section">
