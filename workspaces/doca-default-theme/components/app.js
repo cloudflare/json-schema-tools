@@ -21,10 +21,20 @@ class App extends Component {
     return (
       <div>
         {this.renderIntro()}
+        <h2>Schemas</h2>
         {schemas
           .filter(schema => !schema.get('cfHidden'))
           .valueSeq()
-          .map(schema => <pre>{JSON.stringify(schema, null, 2)}</pre>)
+          .map(schema =>
+            <div key={schema.get('id')}>
+              <hr />
+              <h3>{schema.get('title')}</h3>
+              <h4>{schema.get('id')}</h4>
+              <pre>
+                {JSON.stringify(schema, null, 2)}
+              </pre>
+            </div>
+          )
         }
       </div>
     );
