@@ -31,11 +31,14 @@ function replaceTheme(theme, project) {
 
 function installTheme(theme, project, dev) {
   console.log(
-    `Trying to yarn ${dev ? 'link' : 'add'} ${chalk.green(theme)} for project ${chalk.green(
-      project
-    )}...`
+    `Trying to yarn ${dev ? 'link' : 'add'} ${chalk.green(
+      theme
+    )} for project ${chalk.green(project)}...`
   );
-  exec(`yarn ${dev ? 'link' : 'add'} ${theme}`, { cwd: project }, function(err, stdout) {
+  exec(`yarn ${dev ? 'link' : 'add'} ${theme}`, { cwd: project }, function(
+    err,
+    stdout
+  ) {
     if (err) {
       console.error(
         chalk.red(

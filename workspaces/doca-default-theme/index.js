@@ -2,5 +2,5 @@
 
 module.exports = {
   App: require('./build/app'),
-  Head: require('./build/head'),
+  Head: require('./build/head')
 };
