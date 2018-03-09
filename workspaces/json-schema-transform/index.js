@@ -1,5 +1,4 @@
 var mergeCfRecurse = require('./lib/mergeCfRecurse');
-var ldo = require('./lib/ldo');
 var allOf = require('./lib/allOf');
 var example = require('./lib/example');
 var apiDoc = require('./lib/apiDoc');
@@ -10,9 +9,6 @@ module.exports = {
   makeCfRecurseWalker: mergeCfRecurse.makeCfRecurseWalker,
   pruneDefinitions: mergeCfRecurse.pruneDefinitions,
   removeLinksAndDefs: mergeCfRecurse.removeLinksAndDefs,
-  extractLdos: ldo.extractLdos,
-  extractLdo: ldo.extractLdo,
-  resolveUri: ldo.resolveUri,
   getCollapseAllOfCallback: allOf.getCollapseAllOfCallback,
   collapseSchemas: allOf.collapseSchemas,
   rollUpExamples: example.rollUpExamples,
