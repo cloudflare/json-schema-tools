@@ -1,0 +1,23 @@
+{
+  "name": "@cloudflare/json-hyper-schema",
+  "version": "0.0.1",
+  "description": "\"An implementation of JSON Hyper-Schema\"",
+  "main": "index.js",
+  "author": "\"Henry Andrews <henry@cloudflare.com>\"",
+  "license": "BSD-3-Clause",
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "jest": {
+    "modulePathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  },
+  "dependencies": {
+    "uri-templates": "^0.2.0"
+  },
+  "devDependencies": {
+    "jest": "^20.0.4"
+  },
+  "private": true
+}

@@ -1,5 +1,5 @@
 const stableStringify = require('json-stable-stringify');
-const ldoUtils = require('./ldo');
+const ldoUtils = require('@cloudflare/json-hyper-schema');
 
 /**
  * Determine the most likely primary type of any instance that
