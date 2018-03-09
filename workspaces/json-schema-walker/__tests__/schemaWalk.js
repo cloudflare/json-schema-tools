@@ -1,6 +1,43 @@
-'use strict';
-
 var schemaWalk = require('../lib/schemaWalk');
+
+describe('Select vocabulary', () => {
+  test('From $schema', () => {
+    expect(
+      schemaWalk.getVocabulary({
+        $schema: 'http://json-schema.org/draft-04/schema#'
+      })
+    ).toEqual(schemaWalk.vocabularies.DRAFT_04);
+    expect(
+      schemaWalk.getVocabulary({
+        $schema: 'http://json-schema.org/draft-04/hyper-schema#'
+      })
+    ).toEqual(schemaWalk.vocabularies.DRAFT_04_HYPER);
+    expect(
+      schemaWalk.getVocabulary({
+        $schema: 'http://json-schema.org/draft-06/schema#'
+      })
+    ).toEqual(schemaWalk.vocabularies.DRAFT_06);
+    expect(
+      schemaWalk.getVocabulary({
+        $schema: 'http://json-schema.org/draft-06/hyper-schema#'
+      })
+    ).toEqual(schemaWalk.vocabularies.DRAFT_06_HYPER);
+    expect(
+      schemaWalk.getVocabulary({
+        $schema: 'http://json-schema.org/draft-07/schema#'
+      })
+    ).toEqual(schemaWalk.vocabularies.DRAFT_07);
+    expect(
+      schemaWalk.getVocabulary({
+        $schema: 'http://json-schema.org/draft-07/hyper-schema#'
+      })
+    ).toEqual(schemaWalk.vocabularies.DRAFT_07_HYPER);
+
+    expect(schemaWalk.getVocabulary({})).toEqual(
+      schemaWalk.vocabularies.DRAFT_07_HYPER
+    );
+  });
+});
 
 describe('Walk schema', () => {
   for (let testSchemaParam of [{}, true]) {
@@ -20,7 +57,8 @@ describe('Walk schema', () => {
         schemaWalk.schemaWalk(
           testSchema,
           checkRoot.bind(this, 'pre'),
-          checkRoot.bind(this, 'post')
+          checkRoot.bind(this, 'post'),
+          schemaWalk.vocabularies.DOCA
         );
         expect(positions.pre).toBe(true);
         expect(positions.post).toBe(true);
@@ -49,7 +87,8 @@ describe('Walk schema', () => {
     schemaWalk.schemaWalk(
       testSchema,
       checkSubschema.bind(this, 'pre'),
-      checkSubschema.bind(this, 'post')
+      checkSubschema.bind(this, 'post'),
+      schemaWalk.vocabularies.DOCA
     );
     expect(positions.pre).toBe(true);
     expect(positions.post).toBe(true);
@@ -99,7 +138,10 @@ describe('Walk subschemas', () => {
       testSchemaSingleLevelSingleItems,
       (schema, path, parent) => {
         actual.push(schema);
-      }
+      },
+      undefined,
+      undefined,
+      schemaWalk.vocabularies.DOCA
     );
 
     // We test the order in other cases.
@@ -133,7 +175,10 @@ describe('Walk subschemas', () => {
         this.testSchema,
         (schema, path, parent, parentPath) => {
           actual.push([schema, path, parentPath]);
-        }
+        },
+        undefined,
+        undefined,
+        schemaWalk.vocabularies.DOCA
       );
 
       expect(actual).toEqual([
@@ -155,7 +200,9 @@ describe('Walk subschemas', () => {
         null,
         (schema, path, parent, parentPath) => {
           actual.push([schema, path, parentPath]);
-        }
+        },
+        undefined,
+        schemaWalk.vocabularies.DOCA
       );
 
       expect(actual).toEqual([
@@ -205,7 +252,9 @@ describe('Walk subschemas', () => {
       null,
       (schema, path, parent, parentPath) => {
         actual.push([schema, path, parentPath]);
-      }
+      },
+      undefined,
+      schemaWalk.vocabularies.DOCA
     );
 
     expect(actual).toEqual([
@@ -248,7 +297,9 @@ describe('Walk subschemas', () => {
       },
       (schema, path, parent) => {
         expect(true).toEqual(false);
-      }
+      },
+      undefined,
+      schemaWalk.vocabularies.DOCA
     );
 
     expect(testSchema).toEqual({});
@@ -261,7 +312,9 @@ describe('Walk subschemas', () => {
       },
       (schema, path, parent) => {
         expect(true).toEqual(false);
-      }
+      },
+      undefined,
+      schemaWalk.vocabularies.DOCA
     );
   });
 
@@ -281,7 +334,9 @@ describe('Walk subschemas', () => {
       },
       (schema, path, parent) => {
         expect(true).toEqual(false);
-      }
+      },
+      undefined,
+      schemaWalk.vocabularies.DOCA
     );
     expect(testSchema.links).toEqual([{}]);
   });
