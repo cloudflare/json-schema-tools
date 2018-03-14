@@ -14,8 +14,13 @@ function replaceSchemasAndTheme(theme, input, output, dev, schemas) {
   replace({
     regex: '// *###schemas###',
     replacement:
-      '  ,\n' +
+      "require('./getting-started.json'),\n" +
       schemas
+        .filter(function(schema) {
+          return Boolean(
+            JSON.parse(fs.readFileSync(path.join(input, schema))).links
+          );
+        })
         .map(function(schema) {
           return `  require('${path.join(prefix, schema)}')`;
         })

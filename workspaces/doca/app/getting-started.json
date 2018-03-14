@@ -1,19 +1,23 @@
 {
   "id": "/getting/started",
   "title": "Getting started",
-  "hidden": true,
+  "cfHidden": true,
   "links": [
     {
-      "title": "Endpoints"
+      "title": "Endpoints",
+      "href": "about:endpoints"
     },
     {
-      "title": "Requests"
+      "title": "Requests",
+      "href": "about:requests"
     },
     {
-      "title": "Responses"
+      "title": "Responses",
+      "href": "about:responses"
     },
     {
-      "title": "Resource IDs"
+      "title": "Resource Identifiers",
+      "href": "about:identifiers"
     }
   ]
 }
