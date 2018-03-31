@@ -32,7 +32,7 @@ var getSubschema = function(schema, path) {
  * Get a vocabulary based on the $schema keyword, defaulting
  * to the most recent hyper-schema if none is present.
  */
-var getVocabulary = function(schema) {
+var getVocabulary = function(schema, defaultVocabulary) {
   let vocabulary;
   if (schema.$schema) {
     try {
@@ -49,7 +49,7 @@ var getVocabulary = function(schema) {
     }
   }
   if (vocabulary === undefined) {
-    vocabulary = DRAFT_07_HYPER;
+    vocabulary = defaultVocabulary || DRAFT_07_HYPER;
   }
   return vocabulary;
 };
@@ -339,8 +339,7 @@ const DRAFT_07_HYPER = Object.assign({}, DRAFT_07, {
   links: _getProcessLinks(DRAFT_07_HYPER_LDO)
 });
 
-const DOCA = Object.assign({}, DRAFT_04, {
-  extraProperties: _processObjectOfSchemas,
+const CLOUDFLARE_DOCA = Object.assign({}, DRAFT_04, {
   links: _getProcessLinks(
     Object.assign({}, DRAFT_04_HYPER_LDO, DRAFT_07_HYPER_LDO)
   )
@@ -361,6 +360,6 @@ module.exports = {
     DRAFT_07,
     DRAFT_07_HYPER,
     DRAFT_07_HYPER_LDO,
-    DOCA
+    CLOUDFLARE_DOCA
   }
 };

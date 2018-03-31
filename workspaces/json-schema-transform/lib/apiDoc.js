@@ -46,24 +46,41 @@ const example = require('./example');
  *    in use.  This is only a limitation if identically named keywords
  *    are being used with a different intended behavior.  Doca keywords
  *    are prefixed with "cf" to make this unlikely.
+ *  - In the absence of $schema, we assume JSON Hyper-Schema draft-04.
  */
 function processApiDocSchema(schema, options) {
-  mergeCfRecurse.mergeCfRecurse(schema);
+  let walkerVocab = Object.assign(
+    {},
+    walker.getVocabulary(schema, walker.vocabularies.DRAFT_04_HYPER),
+    walker.vocabularies.CLOUDFLARE_DOCA
+  );
+
+  mergeCfRecurse.mergeCfRecurse(schema, walkerVocab);
 
   let collapseCallback = collapser.getCollapseAllOfCallback(
     schema.$schema || 'http://json-schema.org/draft-04/hyper-schema#',
-    collapser.CLOUDFLARE_DOCA
+    collapser.vocabularies.CLOUDFLARE_DOCA
   );
 
   // TODO: In theory, these two could be combined into one walk,
   //       as they both only work with subschemas, but in practice
   //       that does not work.  Need to investigate.
-  walker.schemaWalk(schema, null, (...args) => {
-    collapseCallback(...args);
-  });
-  walker.schemaWalk(schema, null, (...args) => {
-    example.rollUpExamples(...args);
-  });
+  walker.schemaWalk(
+    schema,
+    null,
+    (...args) => {
+      collapseCallback(...args);
+    },
+    walkerVocab
+  );
+  walker.schemaWalk(
+    schema,
+    null,
+    (...args) => {
+      example.rollUpExamples(...args);
+    },
+    walkerVocab
+  );
 
   // Curl examples need to be run through the walker
   // separately, because they need the root schema
@@ -74,7 +91,7 @@ function processApiDocSchema(schema, options) {
     (options && options.baseUri) || '',
     (options && options.globalHeaderSchema) || {}
   );
-  walker.schemaWalk(schema, null, curlCallback);
+  walker.schemaWalk(schema, null, curlCallback, walkerVocab);
   return schema;
 }
 

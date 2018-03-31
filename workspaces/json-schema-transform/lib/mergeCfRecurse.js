@@ -105,7 +105,14 @@ var pruneDefinitions = function(schema) {
  * If there are no links at the top level, we return the schema
  * unchaged (it is not trimmed).
  */
-var mergeCfRecurse = function(schema, options) {
+var mergeCfRecurse = function(schema, options, vocabulary) {
+  if (vocabulary === undefined) {
+    vocabulary = schemaWalk.getVocabulary(
+      schema,
+      schemaWalk.vocabularies.CLOUDFLARE_DOCA
+    );
+  }
+
   if (schema.hasOwnProperty('links')) {
     // First remove unnecessary subschemas.  We use subschemaWalk()
     // instead of walkSchemas() because we want to keep the top-level
@@ -113,7 +120,13 @@ var mergeCfRecurse = function(schema, options) {
     if (schema.hasOwnProperty('definitions')) {
       module.exports.pruneDefinitions(schema);
     }
-    schemaWalk.subschemaWalk(schema, module.exports.removeLinksAndDefs);
+    schemaWalk.subschemaWalk(
+      schema,
+      module.exports.removeLinksAndDefs,
+      null,
+      [],
+      vocabulary
+    );
 
     for (let i = 0; i < schema.links.length; i++) {
       let ldo = schema.links[i];
@@ -152,7 +165,7 @@ var mergeCfRecurse = function(schema, options) {
     delete rootSchemaNoLinks.definitions;
 
     let walker = module.exports.makeCfRecurseWalker(rootSchemaNoLinks);
-    schemaWalk.subschemaWalk(linksOnly, walker);
+    schemaWalk.subschemaWalk(linksOnly, walker, null, [], vocabulary);
   }
 };
 

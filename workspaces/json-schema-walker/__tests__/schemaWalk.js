@@ -32,10 +32,15 @@ describe('Select vocabulary', () => {
         $schema: 'http://json-schema.org/draft-07/hyper-schema#'
       })
     ).toEqual(schemaWalk.vocabularies.DRAFT_07_HYPER);
+  });
 
+  test('From default', () => {
     expect(schemaWalk.getVocabulary({})).toEqual(
       schemaWalk.vocabularies.DRAFT_07_HYPER
     );
+    expect(
+      schemaWalk.getVocabulary({}, schemaWalk.vocabularies.DRAFT_04_HYPER)
+    ).toEqual(schemaWalk.vocabularies.DRAFT_04_HYPER);
   });
 });
 
@@ -58,7 +63,7 @@ describe('Walk schema', () => {
           testSchema,
           checkRoot.bind(this, 'pre'),
           checkRoot.bind(this, 'post'),
-          schemaWalk.vocabularies.DOCA
+          schemaWalk.vocabularies.CLOUDFLARE_DOCA
         );
         expect(positions.pre).toBe(true);
         expect(positions.post).toBe(true);
@@ -88,7 +93,7 @@ describe('Walk schema', () => {
       testSchema,
       checkSubschema.bind(this, 'pre'),
       checkSubschema.bind(this, 'post'),
-      schemaWalk.vocabularies.DOCA
+      schemaWalk.vocabularies.CLOUDFLARE_DOCA
     );
     expect(positions.pre).toBe(true);
     expect(positions.post).toBe(true);
@@ -98,7 +103,7 @@ describe('Walk schema', () => {
 describe('Walk subschemas', () => {
   test('Test all subschema keywords', () => {
     let expectedSubschemas = new Set();
-    for (let i = 0; i < 18; i++) {
+    for (let i = 0; i < 16; i++) {
       expectedSubschemas.add({
         title: 'Subschema #' + i,
         sortcode: i
@@ -116,10 +121,6 @@ describe('Walk subschemas', () => {
         two: iter.next().value
       },
       additionalProperties: iter.next().value,
-      extraProperties: {
-        one: iter.next().value,
-        two: iter.next().value
-      },
       dependencies: {
         one: iter.next().value,
         two: iter.next().value,
@@ -141,7 +142,7 @@ describe('Walk subschemas', () => {
       },
       undefined,
       undefined,
-      schemaWalk.vocabularies.DOCA
+      schemaWalk.vocabularies.CLOUDFLARE_DOCA
     );
 
     // We test the order in other cases.
@@ -178,7 +179,7 @@ describe('Walk subschemas', () => {
         },
         undefined,
         undefined,
-        schemaWalk.vocabularies.DOCA
+        schemaWalk.vocabularies.CLOUDFLARE_DOCA
       );
 
       expect(actual).toEqual([
@@ -202,7 +203,7 @@ describe('Walk subschemas', () => {
           actual.push([schema, path, parentPath]);
         },
         undefined,
-        schemaWalk.vocabularies.DOCA
+        schemaWalk.vocabularies.CLOUDFLARE_DOCA
       );
 
       expect(actual).toEqual([
@@ -254,7 +255,7 @@ describe('Walk subschemas', () => {
         actual.push([schema, path, parentPath]);
       },
       undefined,
-      schemaWalk.vocabularies.DOCA
+      schemaWalk.vocabularies.CLOUDFLARE_DOCA
     );
 
     expect(actual).toEqual([
@@ -278,7 +279,6 @@ describe('Walk subschemas', () => {
   test("Don't call post func when schema keyword is removed", () => {
     let testSchema = {
       properties: { a: {} },
-      extraProperties: { b: {} },
       patternProperties: { c: {} },
       dependencies: { d: 'string', e: {} },
       additionalProperties: {},
@@ -299,7 +299,7 @@ describe('Walk subschemas', () => {
         expect(true).toEqual(false);
       },
       undefined,
-      schemaWalk.vocabularies.DOCA
+      schemaWalk.vocabularies.CLOUDFLARE_DOCA
     );
 
     expect(testSchema).toEqual({});
@@ -314,7 +314,7 @@ describe('Walk subschemas', () => {
         expect(true).toEqual(false);
       },
       undefined,
-      schemaWalk.vocabularies.DOCA
+      schemaWalk.vocabularies.CLOUDFLARE_DOCA
     );
   });
 
@@ -336,7 +336,7 @@ describe('Walk subschemas', () => {
         expect(true).toEqual(false);
       },
       undefined,
-      schemaWalk.vocabularies.DOCA
+      schemaWalk.vocabularies.CLOUDFLARE_DOCA
     );
     expect(testSchema.links).toEqual([{}]);
   });

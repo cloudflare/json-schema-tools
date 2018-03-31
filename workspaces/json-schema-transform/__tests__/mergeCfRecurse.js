@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var mergeCfRecurse = require('../lib/mergeCfRecurse');
+var walker = require('@cloudflare/json-schema-walker');
 
 describe('Merge root schema into "cfRecurse": "" schemas', () => {
   beforeEach(() => {
@@ -192,6 +193,17 @@ describe('Merge root schema into "cfRecurse": "" schemas', () => {
       let schemaDocument = { properties: { cfRecurse: '' } };
       let expected = _.cloneDeep(schemaDocument);
       mergeCfRecurse.mergeCfRecurse(schemaDocument);
+      expect(schemaDocument).toEqual(expected);
+    });
+
+    test('merge only within vocabulary subschemas', () => {
+      let schemaDocument = { links: [{ headerSchema: { cfRecurse: '' } }] };
+      let expected = _.cloneDeep(schemaDocument);
+      mergeCfRecurse.mergeCfRecurse(
+        schemaDocument,
+        {},
+        walker.vocabularies.DRAFT_04_HYPER
+      );
       expect(schemaDocument).toEqual(expected);
     });
 

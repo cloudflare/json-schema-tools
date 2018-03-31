@@ -19,9 +19,9 @@ describe('System Tests', () => {
     let expected = yaml.readSync(__dirname + '/fixtures/system-no-allof.yaml');
     let cb = transform.getCollapseAllOfCallback(
       schema.$schema,
-      transform.CLOUDFLARE_DOCA
+      transform.vocabularies.CLOUDFLARE_DOCA
     );
-    walker.schemaWalk(schema, null, cb);
+    walker.schemaWalk(schema, null, cb, walker.vocabularies.CLOUDFLARE_DOCA);
     expect(schema).toEqual(expected);
   });
 
@@ -29,7 +29,12 @@ describe('System Tests', () => {
     let schema = yaml.readSync(__dirname + '/fixtures/system-no-allof.yaml');
     let expected = yaml.readSync(__dirname + '/fixtures/system-examples.yaml');
 
-    walker.schemaWalk(schema, null, transform.rollUpExamples);
+    walker.schemaWalk(
+      schema,
+      null,
+      transform.rollUpExamples,
+      walker.vocabularies.CLOUDFLARE_DOCA
+    );
     expect(schema).toEqual(expected);
   });
 
@@ -47,7 +52,7 @@ describe('System Tests', () => {
         }
       }
     );
-    walker.schemaWalk(schema, null, cb);
+    walker.schemaWalk(schema, null, cb, walker.vocabularies.CLOUDFLARE_DOCA);
     expect(schema).toEqual(expected);
   });
 

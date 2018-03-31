@@ -7,6 +7,5 @@ export default fromJS([
   // list by the scaffolding process, provides table-of-contents links
   // for the sections in src/client/introduction.js.  You are free
   // to customize or remove both the schema and the introduction component.
-
   // ###schemas###
 ]);

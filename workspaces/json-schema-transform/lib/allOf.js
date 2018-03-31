@@ -72,10 +72,44 @@ const DRAFT_04_HYPER = Object.assign({}, DRAFT_04, {
   fragmentResolution: _notSupported
 });
 
+// TODO: $id shouldn't really be "parent wins" but it's sufficient for now.
+const DRAFT_06 = Object.assign({}, DRAFT_04_NO_ID, {
+  $id: _parentWins,
+  const: _collision,
+  minimum: _maxOfMin,
+  exclusiveMinimum: _maxOfMin,
+  maximum: _minOfMax,
+  exclusiveMaximum: _minOfMax,
+  propertyNames: _collapseObjectOfSchemas,
+  examples: _arrayUnion
+});
+
+const DRAFT_06_HYPER = Object.assign({}, DRAFT_06, {
+  base: _collision,
+  links: _arrayUnion,
+  readOnly: _or,
+  media: _collision
+});
+
+const DRAFT_07 = Object.assign({}, DRAFT_06, {
+  if: _collision,
+  then: _collision,
+  else: _collision,
+  readOnly: _or,
+  writeOnly: _or,
+  contentMediaType: _collision,
+  contentEncoding: _collision
+});
+
+const DRAFT_07_HYPER = Object.assign({}, DRAFT_07, {
+  base: _collision,
+  links: _arrayUnion
+});
+
 // Some things that are assigned _parentWins() should probably have
 // more sophisticated behavior but this is fine for parity with the
 // existing Doca suite code.
-const CLOUDFLARE_DOCA = {
+const CLOUDFLARE_DOCA = Object.assign({}, DRAFT_04_HYPER, {
   $comment: _parentWins,
   example: _parentWins,
   cfPrivate: _or,
@@ -87,7 +121,7 @@ const CLOUDFLARE_DOCA = {
 
   // For now, require cfRecurse to always be preprocessed out.
   cfRecurse: _notSupported
-};
+});
 
 /*******************************************************
  * Collapser Functions
@@ -391,10 +425,10 @@ function collapseSchemas(parent, parentPath, subschema, vocab) {
  * are provided by this module, as is a constant for the extension
  * vocabulary used by Cloudflare's Doca suite.
  */
-function getCollapseAllOfCallback(schemaUri, ...additionalVocabularies) {
+function getCollapseAllOfCallback(metaSchemaUri, ...additionalVocabularies) {
   let vocab = {};
 
-  switch (schemaUri) {
+  switch (metaSchemaUri) {
     case 'http://json-schema.org/draft-04/schema#':
       Object.assign(vocab, DRAFT_04);
       break;
@@ -434,9 +468,15 @@ function getCollapseAllOfCallback(schemaUri, ...additionalVocabularies) {
 // testing purposes.  In particular, they should not be re-exported
 // via index.js
 module.exports = {
-  DRAFT_04,
-  DRAFT_04_HYPER,
-  CLOUDFLARE_DOCA,
+  vocabularies: {
+    DRAFT_04,
+    DRAFT_04_HYPER,
+    DRAFT_06,
+    DRAFT_06_HYPER,
+    DRAFT_07,
+    DRAFT_07_HYPER,
+    CLOUDFLARE_DOCA
+  },
   getCollapseAllOfCallback,
   collapseSchemas,
   _or,
