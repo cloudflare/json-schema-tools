@@ -4,6 +4,9 @@
   "description": "Library for working with JSON [Hyper-]Schemas",
   "main": "index.js",
   "license": "BSD-3-Clause",
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "Henry Andrews <henry@cloudflare.com>",
   "scripts": {
     "test": "jest --coverage"

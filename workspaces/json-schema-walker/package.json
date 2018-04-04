@@ -5,11 +5,13 @@
   "main": "index.js",
   "author": "\"Henry Andrews <henry@cloudflare.com>\"",
   "license": "BSD-3-Clause",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "test": "jest --coverage"
   },
   "devDependencies": {
     "jest": "^20.0.4"
-  },
-  "private": true
+  }
 }

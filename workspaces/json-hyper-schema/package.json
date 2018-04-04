@@ -5,19 +5,16 @@
   "main": "index.js",
   "author": "\"Henry Andrews <henry@cloudflare.com>\"",
   "license": "BSD-3-Clause",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "test": "jest --coverage"
-  },
-  "jest": {
-    "modulePathIgnorePatterns": [
-      "/node_modules/"
-    ]
   },
   "dependencies": {
     "uri-templates": "^0.2.0"
   },
   "devDependencies": {
     "jest": "^20.0.4"
-  },
-  "private": true
+  }
 }

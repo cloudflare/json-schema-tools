@@ -16,8 +16,8 @@
     "lint": "eslint src webpack || true"
   },
   "dependencies": {
-    "@cloudflare/json-schema-apidoc-loader": "^0.0.1",
-    "@cloudflare/json-schema-ref-loader": "^0.0.1",
+    "@cloudflare/json-schema-apidoc-loader": "^0.1.0",
+    "@cloudflare/json-schema-ref-loader": "^0.1.0",
     "babel-core": "^6.8.0",
     "babel-eslint": "^7.1.1",
     "babel-loader": "^6.2.4",

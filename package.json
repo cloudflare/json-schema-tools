@@ -1,8 +1,9 @@
 {
   "private": true,
   "name": "@cloudflare/json-schema-tools",
+  "description": "Monorepo for JSON Schema-related packages",
   "author": "Henry Andrews <henry@cloudflare.com>",
-  "licens": "BSD-3-Clause",
+  "license": "BSD-3-Clause",
   "scripts": {
     "format": "prettier --write \"**/*.js\""
   },
