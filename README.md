@@ -13,13 +13,28 @@ while they may support some Cloudflare extensions to JSON Schema,
 they should all be usable with schemas that rely only on the
 standard keywords and features.
 
-Packages fall into a few categories.  The following diagram gives an overview of how schemas may be used by various packages in this repository.  Each package is described in more detail after the image.
+## Note that these packages have not yet reached a stable interface
 
-![A possible json-schema-tools data flow can involve static schema transformations with the walker and transform packages, which can produce schemas suitable for use in applications such as the Doca API documentation system.  Alternatively, schemas can be used (typically as-is) for validating API data at runtime.](diagram-of-packages.png "Example data flows")
+Interfaces will change and packages will be refactored until each package
+reaches a 1.0 status.  This will likely occur once JSON Schema [draft-08](https://github.com/json-schema-org/json-schema-spec/milestone/6), which
+will have some very significant new features, is finalized.  In particular,
+the concept of a Schema Vocabulary appears in several locations but is neither
+well nor consistently managed in the current code.  Draft-08 will formalize
+that concept.
 
-## Static analysis and manipulation
+If you are interested in building on these packages, please file an issue indicating what you need to use and we will work to ensure reasonable levels of support as we finalize the interfaces.
 
-These tools work with schemas without any instance data.  Examples include transforming schemas from arrangements that are useful for schema maintenance into equivalent forms that better suit applications such as a documentation generator.
+## The packages
+
+Packages fall into a few categories.  Currently, the packages in this repository
+focus on static manipulation and processing of schemas, in particular for
+generating API documentation.  The following diagram gives an overview of how this
+and potentially other kinds of static processing work:
+
+![A possible json-schema-tools data flow for static schema processing would likely involve the walker and transform packages, which can produce schemas suitable for use in applications such as the Doca API documentation system.](docs/static-processing.png "Static processing data flows")
+
+Additional packages will likely add runtime functionality, including automated API
+testing support based on JSON Hyper-Schema.
 
 ### `@cloudflare/json-schema-walker`
 
@@ -31,45 +46,51 @@ There are variants for visiting all schemas including the root, as well as for o
 
 ### `@cloudflare/json-schema-transform`
 
-[`json-schema-transform`](workspaces/json-schema-transform/README.md) is a collection of utility functions, most of which are either callbacks intended for use with `json-schema -walker`, or make use of `json-schema-walker` internally.
+[`json-schema-transform`](workspaces/json-schema-transform/README.md) is a collection of utility functions, most of which are either callbacks intended for use with `json-schema -walker`, or make use of `json-schema-walker` internally.  This package will eventually include transforms for converting one draft to another.
 
-## Evaluating instances against schemas
-
-_These packages have not yet been created._
-
-While we do not include a validator, as many excellent ones are available, we do have packages that build on validation and hyper-schema.
-
-Eventually we hope to provide a full JSON Hyper-Schema implementation and generic hyperclient, although this is some ways off.
-
-### `@cloudflare/json-schema-test`
-
-Applies schema validation to API requests and responses.  This primarily leverages JSON Hyper-Schema but other utilities such as a [Jest](https://facebook.github.io/jest/) matcher for regular schema validation are included.
+Among other things, this makes replacements for the internals of the deprecated `json-schema-example-loader` package available outside of Webpack.  See `json-schema-apidoc-loader` for use with Webpack.
 
 ### `@cloudflare/json-hyper-schema`
 
-The beginnings of an implementation of JSON Hyper-Schema.
+[`json-hyper-schema`](workspaces/json-hyper-schema/README.md) is an implementation of the JSON Hyper-Schema specification, supporting both static (currently) and dynamic (in the future) use of Hyper-Schemas.  Eventually, we hope to build a fully-featured hyperclient based on this package.
+
+Currently, this just includes some utilities for looking up link description objects and resolving URI Templates from an instance.  Some of these utilities are replacements for internals of the deprecated `json-schema-example-loader`.
+
+### `@cloudflare/json-schema-test`
+
+_This package has not yet been created._
+
+Applies schema validation to API requests and responses.  This will primarily leverage JSON Hyper-Schema but other utilities such as a [Jest](https://facebook.github.io/jest/) matcher for regular schema validation will be included.
 
 ## Applications and application support
 
-_These packages have not yet been created._
-
 Currently, the only application provided is an API documentation system known as "Doca".  This is a refactored and re-designed version of [our existing Doca suite](https://github.com/cloudflare/doca)
 
-### `@cloudflare/doca-scaffold`
+### `@cloudflare/doca`
 
 Scaffolding system to generate API documentation apps.
 
 Replaces the existing `doca` package, which is now deprecated.
 
-### `@cloudflare/doca-loader`
+### `@cloudflare/doca-default-theme`
 
-[Webpack 2](https://webpack.js.org/) loader that uses `json-schema-transform` and other packages to convert a set of schemas into a form suitable for display as documentation.
+The default UI for documentation apps scaffolded by `@cloudflare/doca`.
 
-Replaces both `json-schema-loader	` and `json-schema-example-loader` in the Doca system.  Note that `json-schema-loader` is still supported as it is a useful simple utility, while `json-schema-example-loader` is deprecated.
+Will eventually fully replace `doca-bootstrap-theme`, but currently this is a bare-bones display of the processed JSON Schemas.  It is provided mainly for debugging purposes and as a starting point for 3rd-party UI themes.
 
-### `@cloudflare/doca-components`
+### `@cloudflare/json-schema-ref-loader`
 
-React components for `doca-scaffold`-generated apps.  Exactly how these relate to or replace the old doca theme system is TBD.
+[Webpack](https://webpack.js.org/) loader that uses `json-schema-transform` and other packages to load schemas written in JSON, JSON5, YAML, or JavaScript formats and dereference all `$ref` occurrences.  All referenced schemas are added as dependencies.
+
+Currently this loader can only be used with schemas that do not have any cyclic references as dereferencing is the only option for loading.
+
+Replaces `json-schema-loader`
+
+### `@cloudflare/json-schema-apidoc-loader`
+
+[Webpack](https://webpack.js.org/) loader that uses `json-schema-transform` and other packages to convert de-referenced (no `$ref`s) into a form suitable for generating documentation, including examples.
+
+Replaces `json-schema-example-loader`
 
 
 ## Installation
@@ -81,7 +102,8 @@ open its README.md for documentation.
 
 ## Installing the monorepo
 
-Please use the latest node (6+) and yarn v1+.  Simply clone the repository
-and run `yarn install`.  A known good version of yarn is included in
+Please use recent versions of lerna (2+), node (6+) and yarn (v1+).
+Simply clone the repository and run `lerna bootstrap`, which will
+use yarn.  A known good version of yarn is included in
 the `scripts` directory and configured in this repository's `.yarnrc`.
 
