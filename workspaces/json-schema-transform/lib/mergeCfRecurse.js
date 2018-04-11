@@ -61,11 +61,25 @@ var pruneDefinitions = function(schema) {
 
   let usedDefinitions = new Set();
   for (let link of schema.links) {
+    if (link.href === undefined || !(typeof link.href === 'string')) {
+      // Pull out the typical non-schema fields, if any
+      let debugLink = {
+        title: link.title,
+        description: link.description,
+        rel: link.rel,
+        method: link.method
+      };
+      throw new Error(
+        'Missing "href" in link (schema fields omitted):\n' +
+          JSON.stringify(debugLink, null, 2)
+      );
+    }
+
     let matches = link.href.match(uriTemplateVariablesPattern);
     for (let match of matches || []) {
       let captures = match.match(definitionNamePattern);
       if (captures === null) {
-        throw `Unsupported template variable format '${match}'`;
+        throw new Error(`Unsupported template variable format '${match}'`);
       }
       usedDefinitions.add(captures[1]);
     }
