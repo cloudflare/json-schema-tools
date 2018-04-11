@@ -1,0 +1,51 @@
+{
+  "id": "https://api.example.com/schemas/solarsystem/planet",
+  "$schema": "http://json-schema.org/draft-04/hyper-schema#",
+  "title": "Planet",
+  "description": "Any sun-orbiting body that is not exclusively classified as a comet.",
+  "allOf": [{"$ref": "definitions/planet"}],
+  "links": [
+    {
+      "title": "List Planets",
+      "rel": "collection",
+      "href": "planets",
+      "method": "GET",
+      "schema": {"$ref": "definitions/planet#/definitions/collectionParams"},
+      "targetSchema": {"$ref": "../common/collection"}
+    },
+    {
+      "title": "Add a Planet",
+      "rel": "collection",
+      "href": "planets",
+      "method": "POST",
+      "schema": {"cfRecurse": ""},
+      "targetSchema": {"cfRecurse": ""}
+    },
+    {
+      "title": "Get Planet Details",
+      "rel": "self",
+      "href": "planets/items/{id}",
+      "method": "GET",
+      "targetSchema": {"cfRecurse": ""}
+    },
+    {
+      "title": "Update a Planet",
+      "rel": "self",
+      "href": "planets/items/{id}",
+      "method": "PUT",
+      "schema": {"cfRecurse": ""},
+      "targetSchema": {"cfRecurse": ""}
+    },
+    {
+      "title": "Remove a Planet",
+      "rel": "self",
+      "href": "planets/items/{id}",
+      "method": "DELETE",
+      "targetSchema": {
+        "properties": {
+          "id": {"$ref": "../common/identifier"}
+        }
+      }
+    }
+  ]
+}

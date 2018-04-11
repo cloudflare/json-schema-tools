@@ -1,0 +1,115 @@
+{
+  "id": "https://api.example.com/schemas/solarsystem/probe",
+  "$schema": "http://json-schema.org/draft-04/hyper-schema#",
+  "title": "Space Probe",
+  "description": "An orbiter that can be sent to any body in the solar system.",
+  "type": "object",
+  "properties": {
+    "id": {"$ref": "../common/identifier"},
+    "orbit": {
+      "description": "Orbit, if the probe is orbiting another body.  Absent if it is transiting to a new orbit.",
+      "allOf": [{"$ref": "definitions/orbit"}]
+    }
+  },
+  "links": [
+    {
+      "title": "List Space Probes",
+      "rel": "collection",
+      "href": "probes",
+      "method": "GET",
+      "targetSchema": {"$ref": "../common/collection"}
+    },
+    {
+      "title": "Add a Space Probe",
+      "rel": "collection",
+      "href": "probes",
+      "method": "POST",
+      "schema": {"cfRecurse": ""},
+      "targetSchema": {"cfRecurse": ""}
+    },
+    {
+      "title": "Get Space Probe Details",
+      "rel": "self",
+      "href": "probes/{id}",
+      "method": "GET",
+      "targetSchema": {"cfRecurse": ""}
+    },
+    {
+      "title": "Update a Space Probe",
+      "description": "Any new orbit will cause the probe to begin transiting to that orbit.  Unless the orbital adjustment was so small as to take place almost immediately, a 202 Accepted status and a link to a polling resource will be the initial response.",
+      "rel": "self",
+      "href": "probes/{id}",
+      "method": "PUT",
+      "schema": {"cfRecurse": ""},
+      "targetSchema": {"cfRecurse": ""}
+    },
+    {
+      "title": "Poll for Transit Status",
+      "description": "If the probe is transiting to a new orbit, this resource will provide an indication of status, including a recommendation of how long to wait before polling again via the \"Retry-After\" HTTP response header.  While orbiting, this resource will respond with a 303 See Other redirect back to the probe's URI.",
+      "rel": "https://api.example.com/rels/common/status",
+      "href": "probes/{id}/status",
+      "targetSchema": {"$ref": "#/definitions/status"}
+    },
+    {
+      "title": "Take a Picture",
+      "rel": "https://api.example.com/rels/solarsystem/camera",
+      "href": "probes/{id}/camera",
+      "method": "POST",
+      "schema": {
+        "title": "Instructions for Taking a Photo",
+        "description": "The point in space to photograph, either as an identified body or a set of ecliptic coordinates",
+        "type": "object",
+        "anyOf": [
+          {"$ref": "#/definitions/targetPlanet"},
+          {"$ref": "#/definitions/targetCoordinates"}
+        ]
+      },
+      "mediaType": "image/png"
+    }
+  ],
+  "definitions": {
+    "status": {
+      "type": "object",
+      "properties": {
+        "probe": {
+          "type": "object",
+          "properties": {
+            "id": {"$ref": "../common/identifier"}
+          }
+        },
+        "distanceRemaining": {
+          "description": "Distance to requested orbit",
+          "allOf": [{"$ref": "definitions/measurements#/definitions/distance"}]
+        },
+        "timeRemaining": {
+          "description": "Estimated time to reach requested orbit",
+          "allOf": [{"$ref": "definitions/measurements#/definitions/timeInDays"}]
+        }
+      }
+    },
+    "targetCoordinates": {
+      "type": "object",
+      "properties": {
+        "coordinates": {
+          "description": "Rectangular heliocentric ecliptic coordinates for the photo target",
+          "type": "array",
+          "items": {"type": "number"},
+          "example": [150e6, 150e6, 0]
+        }
+      }
+    },
+    "targetPlanet": {
+      "properties": {
+        "planet": {
+          "type": "object",
+          "properties": {
+            "id": {"$ref": "../common/identifier"}
+          }
+        }
+      },
+      "example": {
+        "planet": {"id": "0123456789abcdef0a1b2c3d4e5f6789"}
+      }
+    }
+  }
+}

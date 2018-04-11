@@ -1,0 +1,38 @@
+{
+  "id": "https://schemas.example.com/solarsystem/sun",
+  "$schema": "http://json-schema.org/draft-04/hyper-schema#",
+  "title": "The Sun",
+  "description": "The single star at the center of our solar system",
+  "type": "object",
+  "properties": {
+    "mass": {
+      "description": "The Sun's mass",
+      "allOf": [{"$ref": "definitions/measurements#/definitions/mass"}]
+    },
+    "planets": {
+      "major": {
+        "description": "Major Planets",
+        "description": "The solar system's known major planets, in order from closest to furthest from the Sun.",
+        "type": "array",
+        "items": {"$ref": "definitions/planet"}
+      }
+    }
+  },
+  "links": [
+    {
+      "title": "The Sun's Details",
+      "rel": "self",
+      "href": "sun",
+      "method": "GET",
+      "targetSchema": {"cfRecurse": ""}
+    },
+    {
+      "title": "Update the Sun",
+      "rel":  "self",
+      "href": "sun",
+      "method": "PUT",
+      "schema": {"cfRecurse": ""},
+      "targetSchema": {"cfRecurse": ""}
+    }
+  ]
+}

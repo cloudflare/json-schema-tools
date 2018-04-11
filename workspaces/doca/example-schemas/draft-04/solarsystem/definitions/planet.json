@@ -1,0 +1,57 @@
+{
+  "id": "https://schemas.example.com/solarsystem/definitions/planet",
+  "$schema": "http://json-schema.org/draft-04/hyper-schema#",
+  "title": "Planet",
+  "description": "Any sun-orbiting body that is not exclusively classified as a comet.",
+  "type": "object",
+  "properties": {
+    "id": {"$ref": "../../common/identifier"},
+    "name": {
+      "type": "string"
+    },
+    "mass": {
+      "type": "number",
+      "minimum": 0
+    },
+    "dimensions": {
+      "description": "Dimensions: an ordered list of three measurements, in Km",
+      "type": "array",
+      "items": {"$ref": "measurements#/definitions/distance"},
+      "minItems": 3,
+      "maxItems": 3,
+      "example": [1920, 1540, 990]
+    },
+    "orbit": {
+      "description": "The orbit of the planet around the Sun.",
+      "allOf": [{"$ref": "orbit"}]
+    },
+    "classification": {"$ref": "#/definitions/classification"}
+  },
+  "definitions": {
+    "collectionParams": {
+      "allOf": [{"$ref": "../../common/collection#/definitions/params"}],
+      "properties": {
+        "filters": {
+          "type": "object",
+          "properties": {
+            "classification": {"$ref": "#/definitions/classification"},
+            "orbit.semimajorAxis.lte": {
+              "title": "Minimum Semi-major Axis (inclusive)",
+              "allOf": [{"$ref": "orbit#/definitions/semimajorAxis"}]
+            },
+            "orbit.semimajorAxis.gte": {
+              "title": "Minimum Semi-major Axis (inclusive)",
+              "allOf": [{"$ref": "orbit#/definitions/semimajorAxis"}]
+            }
+          }
+        }
+      }
+    },
+    "classification": {
+      "description": "Classification as a major, minor, or dwarf planet",
+      "type": "string",
+      "enum": ["major", "dwarf", "minor"],
+      "example": "dwarf"
+    }
+  }
+}

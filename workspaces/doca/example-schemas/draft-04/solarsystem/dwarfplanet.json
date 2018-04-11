@@ -1,0 +1,43 @@
+{
+  "id": "https://api.example.com/schemas/solarsystem/dwarfplanet",
+  "$schema": "http://json-schema.org/draft-04/hyper-schema#",
+  "title": "Dwarf Planet",
+  "description": "A planet that is in hydrostatic equilibrium but that has not cleared its orbital neighborhood.",
+  "allOf": [{"$ref": "definitions/planet"}],
+  "links": [
+    {
+      "title": "List Dwarf Planets",
+      "rel": "collection",
+      "href": "planets/dwarf",
+      "method": "GET",
+      "schema": {"$ref": "definitions/planet#/definitions/collectionParams"},
+      "targetSchema": {"$ref": "../common/collection"}
+    },
+    {
+      "title": "Get Dwarf Planet Details",
+      "rel": "self",
+      "href": "planets/dwarf/{name}",
+      "method": "GET",
+      "targetSchema": {"cfRecurse": ""}
+    },
+    {
+      "title": "Create or Update Dwarf Planet",
+      "rel": "self",
+      "href": "planets/dwarf/{name}",
+      "method": "PUT",
+      "schema": {"cfRecurse": ""},
+      "targetSchema": {"cfRecurse": ""}
+    },
+    {
+      "title": "Remove a Dwarf Planet",
+      "rel": "self",
+      "href": "planets/dwarf/{name}",
+      "method": "DELETE",
+      "targetSchema": {
+        "properties": {
+          "id": {"$ref": "../common/identifier"}
+        }
+      }
+    }
+  ]
+}
