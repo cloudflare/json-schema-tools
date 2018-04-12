@@ -1,12 +1,13 @@
 const React = require('react');
 const Component = require('react-pure-render/component');
+const PropTypes = require('prop-types');
 const ImmutablePropTypes = require('react-immutable-proptypes');
 
 class App extends Component {
   static propTypes = {
     schemas: ImmutablePropTypes.list.isRequired,
-    config: React.PropTypes.object,
-    introduction: React.PropTypes.function
+    config: PropTypes.object,
+    introduction: PropTypes.func
   };
 
   renderIntro = () => {

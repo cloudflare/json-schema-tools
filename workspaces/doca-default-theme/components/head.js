@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 
 const Head = ({ cssBundle, title }) => (
   <head>
@@ -13,8 +14,8 @@ const Head = ({ cssBundle, title }) => (
 );
 
 Head.propTypes = {
-  cssBundle: React.PropTypes.string,
-  title: React.PropTypes.string
+  cssBundle: PropTypes.string,
+  title: PropTypes.string
 };
 
 Head.displayName = 'Head';
