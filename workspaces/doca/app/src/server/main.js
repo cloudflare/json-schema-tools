@@ -15,4 +15,4 @@ app.get('*', (req, res) => {
 });
 
 app.listen(port);
-console.log(`Server started on port ${port}`); // eslint-disable-line
+console.log(`Server started on port ${port}`);

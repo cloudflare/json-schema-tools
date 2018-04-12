@@ -1,5 +1,3 @@
-/* eslint react/no-danger: 0 */
-
 import React, { PropTypes } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { Provider } from 'react-redux';
