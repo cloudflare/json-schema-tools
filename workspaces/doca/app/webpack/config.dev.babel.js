@@ -25,7 +25,7 @@ export default {
         loader: 'babel-loader',
         options: {
           plugins: ['transform-class-properties'],
-          presets: ['es2015', 'react', 'react-hmre']
+          presets: ['env', 'react', 'react-hmre']
         }
       },
       {

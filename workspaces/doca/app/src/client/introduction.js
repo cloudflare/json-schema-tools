@@ -1,7 +1,3 @@
-/* eslint max-len: 0 */
-/* eslint react/jsx-indent: 0 */
-/* eslint react/no-unescaped-entities: 0 */
-
 import React from 'react';
 import Component from 'react-pure-render/component';
 import config from '../../config';

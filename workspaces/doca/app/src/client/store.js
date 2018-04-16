@@ -1,6 +1,3 @@
-/* eslint global-require: 0 */
-/* eslint no-console: 0 */
-
 import { createStore } from 'redux';
 import docs from './reducers/index';
 import schemas from '../../schemas';
