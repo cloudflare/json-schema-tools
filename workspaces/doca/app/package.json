@@ -18,7 +18,7 @@
     "@cloudflare/json-schema-apidoc-loader": "^0.1.0",
     "@cloudflare/json-schema-ref-loader": "^0.1.0",
     "babel-core": "^6.8.0",
-    "babel-loader": "^6.2.4",
+    "babel-loader": "^7.1.4",
     "babel-plugin-transform-class-properties": "^6.10.2",
     "babel-preset-env": "^1.6.0",
     "babel-preset-react": "^6.24.0",
