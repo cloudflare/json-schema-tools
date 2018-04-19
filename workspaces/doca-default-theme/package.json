@@ -20,9 +20,9 @@
   ],
   "dependencies": {
     "immutable": "^3.8.1",
-    "react": "^16.3.0",
-    "react-dom": "^16.3.0",
-    "react-immutable-proptypes": "^2.1.0",
+    "react": "^15.2.0",
+    "react-dom": "^15.2.0",
+    "react-immutable-proptypes": "^1.7.1",
     "react-pure-render": "^1.0.2"
   },
   "devDependencies": {
@@ -30,7 +30,7 @@
     "babel-core": "^6.8.0",
     "babel-plugin-transform-class-properties": "^6.10.2",
     "babel-preset-env": "^1.6.0",
-    "babel-preset-react": "^6.24.0",
+    "babel-preset-react": "^6.5.0",
     "babel-preset-react-hmre": "^1.1.1",
     "cross-env": "^1.0.8",
     "jest": "^20.0.4",

@@ -30,22 +30,22 @@ export default {
       {
         test: /\.less$/,
         loader: ExtractTextPlugin.extract({
-          fallbackLoader: 'style-loader',
-          loader: 'css-loader!less-loader'
+          fallback: 'style-loader',
+          use: 'css-loader!less-loader'
         })
       },
       {
         test: /\.scss$/,
         loader: ExtractTextPlugin.extract({
-          fallbackLoader: 'style-loader',
-          loader: 'css-loader!sass-loader'
+          fallback: 'style-loader',
+          use: 'css-loader!sass-loader'
         })
       },
       {
         test: /\.css$/,
         loader: ExtractTextPlugin.extract({
-          fallbackLoader: 'style-loader',
-          loader: 'css-loader'
+          fallback: 'style-loader',
+          use: 'css-loader'
         })
       },
       {
