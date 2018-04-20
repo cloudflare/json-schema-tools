@@ -1,6 +1,6 @@
 {
   "name": "@cloudflare/doca-default-theme",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "description": "Basic default theme for @cloudflare/doca",
   "main": "index.js",
   "author": "Vojtech Miksu <vojtech@miksu.cz>",
