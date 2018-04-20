@@ -1,0 +1,9 @@
+{
+  "id": "https://api.example.com/schemas/common/identifier",
+  "$schema": "http://json-schema.org/draft-04/hyper-schema#",
+  "description": "API item identifier string (hexadecimal)",
+  "type": "string",
+  "pattern": "[0-9a-f]{32}",
+  "readOnly": true,
+  "example": "9a7806061c88ada191ed06f989cc3dac"
+}

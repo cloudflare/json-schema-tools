@@ -1,0 +1,23 @@
+{
+  "id": "https://schemas.example.com/solarsystem/definitions/measurements",
+  "$schema": "http://json-schema.org/draft-04/hyper-schema#",
+  "description": "Contains definitions for measurements with units documented",
+  "definitions": {
+    "distance": {
+      "description": "distance in kilometers",
+      "type": "number"
+    },
+    "mass": {
+      "description": "mass in kilograms",
+      "type": "number"
+    },
+    "timeInDays": {
+      "description": "duration in days",
+      "type": "number"
+    },
+    "timeInYears": {
+      "description": "duration in years",
+      "type": "number"
+    }
+  }
+}

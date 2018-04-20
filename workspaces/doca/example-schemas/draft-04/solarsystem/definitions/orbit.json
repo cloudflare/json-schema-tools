@@ -1,0 +1,48 @@
+{
+  "id": "https://schemas.example.com/solarsystem/definitions/orbit",
+  "$schema": "http://json-schema.org/draft-04/hyper-schema#",
+  "title": "An orbit of one body around another",
+  "type": "object",
+  "properties": {
+    "id": {"$ref": "../../common/identifier"},
+    "primaryPlanet": {
+      "description": "Primary body.  If present, this identifies the planet which is the primary mass in the orbital system.  If absent, the orbit is heliocentric.",
+      "type": "object",
+      "properties": {
+        "id": {"$ref": "../../common/identifier"}
+      },
+      "example": {"id": "0123456789abcdef0a1b2c3d4e5f6789"}
+    },
+    "semimajorAxis": {"$ref": "#/definitions/semimajorAxis"},
+    "eccentricity": {
+      "description": "Eccentricity",
+      "type": "number",
+      "minimum": 0,
+      "example": 0.0167
+    },
+    "inclination": {
+      "description": "Inclination",
+      "allOf": [{"$ref": "#/definitions/degrees"}],
+      "example": 17.16
+    },
+    "ascendingLongitude": {},
+    "argumentOfPeriapsis": {},
+    "meanAnomaly": {},
+    "period": {},
+    "averageSpeed": {}
+  },
+  "definitions": {
+    "degrees": {
+      "type": "number",
+      "minimum": -360,
+      "exclusiveMinimum": true,
+      "maximum": 360,
+      "exclusiveMaximum": true
+    },
+    "semimajorAxis": {
+      "title": "Semi-major Axis",
+      "allOf": [{"$ref": "measurements#/definitions/distance"}],
+      "example": 149.598e3
+    }
+  }
+}

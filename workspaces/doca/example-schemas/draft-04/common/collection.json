@@ -1,0 +1,72 @@
+{
+  "id": "https://api.example.com/schemas/common/collection",
+  "$schema": "http://json-schema.org/draft-04/hyper-schema#",
+  "description": "Schema pattern for a collection, assumed to be used within a schema document describing the collected item.  Applies a standard pagination and representation metadata model.",
+  "type": "object",
+  "allOf": [
+    {
+     "properties": {
+        "items": {
+          "type": "array",
+          "items": {"cfRecurse": ""}
+        },
+        "meta": {
+          "$ref": "#/definitions/meta"
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "params": {
+      "type": "object",
+      "properties": {
+        "offset": {
+          "description": "Offset of the first record in a page of results",
+          "type": "integer",
+          "minimum": 0,
+          "example": 1
+        },
+        "limit": {
+          "description": "Number of records requested in a page",
+          "type": "integer",
+          "minimum": 1,
+          "example": 20
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["offset", "limit", "count"],
+      "properties": {
+        "offset": {
+          "description": "Offset of first record in the current page",
+          "type": "integer",
+          "minimum": 0,
+          "example": 1
+        },
+        "limit": {
+          "description": "Number of records requested per page of results",
+          "type": "integer",
+          "minimum": 1,
+          "example": 20
+        },
+        "count": {
+          "description": "Actual number of records in the current page",
+          "type": "integer",
+          "minimum": 0,
+          "example": 1
+        },
+        "totalCount": {
+          "description": "Total results available without any search parameters",
+          "type": "integer",
+          "minimum": 0,
+          "example": 2000
+        },
+        "filters": {
+          "description": "Collection-specific filter criteria",
+          "type": "object"
+        }
+      }
+    }
+  }
+}
