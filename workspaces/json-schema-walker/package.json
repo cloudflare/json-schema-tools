@@ -1,6 +1,6 @@
 {
   "name": "@cloudflare/json-schema-walker",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "description": "\"Utilities for walking JSON Schemas and performing actions on them.\"",
   "main": "index.js",
   "author": "\"Henry Andrews <henry@cloudflare.com>\"",
