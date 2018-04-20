@@ -1,6 +1,6 @@
 {
   "name": "@cloudflare/json-schema-apidoc-loader",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "\"Webpack loader applying transformations to dereferenced JSON Hyper-Schemas to make them more suitable for API documentation display\"",
   "main": "lib/loader.js",
   "author": "\"Henry Andrews <henry@cloudflare.com>\"",

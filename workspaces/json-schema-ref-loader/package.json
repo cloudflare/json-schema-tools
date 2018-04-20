@@ -1,6 +1,6 @@
 {
   "name": "@cloudflare/json-schema-ref-loader",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Webpack loader that resolves non-cyclic Json Schema references.",
   "license": "BSD-3-Clause",
   "publishConfig": {
