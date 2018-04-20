@@ -43,10 +43,7 @@ function copyFiles(theme, input, output, dev, schemas) {
 }
 
 function findSchemas(theme, input, output, dev) {
-  var options = null;
-  if (input) {
-    options = { cwd: path.normalize(input) };
-  }
+  var options = { cwd: input };
   glob('**/*.json', options, function(err, schemas) {
     if (err) {
       console.error(err);
@@ -65,6 +62,7 @@ function findSchemas(theme, input, output, dev) {
 function init(theme, input, output, dev) {
   var themeName = theme || '@cloudflare/doca-default-theme';
   var outputFolder = output ? path.normalize(output) : 'documentation';
+  var inputPath = input ? path.normalize(input) : '.';
 
   fs.access(outputFolder, fs.F_OK, function(err) {
     if (!err) {
@@ -74,7 +72,7 @@ function init(theme, input, output, dev) {
     } else {
       mkdirp(outputFolder);
       console.log(`Folder ${chalk.red(outputFolder)} has been created.`);
-      findSchemas(themeName, input, outputFolder, dev);
+      findSchemas(themeName, inputPath, outputFolder, dev);
     }
   });
 }
