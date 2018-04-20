@@ -1,6 +1,6 @@
 {
   "name": "@cloudflare/json-hyper-schema",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "description": "\"An implementation of JSON Hyper-Schema\"",
   "main": "index.js",
   "author": "\"Henry Andrews <henry@cloudflare.com>\"",
