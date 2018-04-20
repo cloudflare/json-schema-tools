@@ -11,6 +11,9 @@
   "scripts": {
     "test": "jest --coverage"
   },
+  "files": [
+    "lib"
+  ],
   "dependencies": {
     "json-schema-ref-parser": "^3.0.2",
     "loader-utils": "^1.1.0"

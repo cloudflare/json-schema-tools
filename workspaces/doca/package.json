@@ -15,7 +15,9 @@
     "test": "jest --coverage"
   },
   "files": [
-    "example-schemas"
+    "app",
+    "example-schemas",
+    "lib"
   ],
   "dependencies": {
     "chalk": "^1.1.3",
