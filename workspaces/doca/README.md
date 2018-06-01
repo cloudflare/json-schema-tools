@@ -2,7 +2,7 @@
 
 Doca is an API documentation site scaffolding tool.
 
-The name also refers to the whole system involved in the resulting site.  See the [https://github.com/cloudflare/json-schema-tools][Cloudflare JSON Schema Tools monorepo README] for a diagram of the system, as well as general requirements such as package management tool versions.
+The name also refers to the whole system involved in the resulting site.  See the [Cloudflare JSON Schema Tools monorepo README](https://github.com/cloudflare/json-schema-tools) for a diagram of the system, as well as general requirements such as package management tool versions.
 
 ## Installation
 
@@ -51,7 +51,7 @@ This lists the commands and their syntax.
 ## Further configuration
 
 * The `config.js` file contains the default base URI and request headers for the API.
-    * Request headers can be overridden (but they are overridden and not extended).  
+    * Request headers can be overridden (but they are overridden and not extended).
     * With draft-04, the base URI cannot be changed.  Support for draft-07's `base` is forthcoming.
 * The `schema.js` file contains the list of schemas, to which you may add.  You can change the order of the schemas in the output by changing their order in this file.
 
