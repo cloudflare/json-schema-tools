@@ -1,6 +1,6 @@
 {
   "name": "@cloudflare/doca",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A CLI tool that scaffolds API documentation based on JSON Hyper-Schemas.",
   "main": "./lib/main.js",
   "author": "Vojtech Miksu <vojtech@miksu.cz>",
