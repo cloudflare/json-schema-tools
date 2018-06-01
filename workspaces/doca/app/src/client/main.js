@@ -8,19 +8,19 @@ try {
   const reqCSS = require.context(
     '@cloudflare/doca-default-theme/styles',
     true,
-    /\.css$/gi
+    /\.css$/i
   );
   reqCSS.keys().forEach(reqCSS);
   const reqLESS = require.context(
     '@cloudflare/doca-default-theme/styles',
     true,
-    /\.less$/gi
+    /\.less$/i
   );
   reqLESS.keys().forEach(reqLESS);
   const reqSASS = require.context(
     '@cloudflare/doca-default-theme/styles',
     true,
-    /\.scss$/gi
+    /\.scss$/i
   );
   reqSASS.keys().forEach(reqSASS);
 } catch (e) {
