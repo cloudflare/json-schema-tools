@@ -5,7 +5,6 @@ module.exports = function(source) {
   this.cacheable && this.cacheable();
 
   let callback = this.async();
-  console.error(this.resourcePath);
 
   // Using a file:// URI avoids problems with the ref parser
   // misunderstanding relative paths.
