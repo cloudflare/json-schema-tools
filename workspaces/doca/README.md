@@ -99,7 +99,7 @@ open build/index.html
 
 Currently, the only theme available is the `@cloudflare/doca-default-theme` from this same repository.
 For now, it simply displays the getting started text and the processed schemas.  We will
-be gradually making this into a proper theme, but it can serve as a debuggging aid for
+be gradually making this into a proper theme, but it can serve as a debugging aid for
 anyone using the underlying tools or wishing to build their own theme from scratch.
 
 The older public theme, `doca-bootstrap-theme`, only works with the older `doca` and not
