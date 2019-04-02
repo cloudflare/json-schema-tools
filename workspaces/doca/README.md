@@ -63,7 +63,7 @@ The repository includes some example schemas
 git clone git@github.com:cloudflare/json-schema-tools.git
 cd json-schema-tools
 lerna bootstrap
-cd doca/example-example-schemas/draft-04
+cd workspaces/doca/example-schemas/draft-04
 doca init
 cd documentation
 ```
