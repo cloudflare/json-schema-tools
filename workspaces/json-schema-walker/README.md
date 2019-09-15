@@ -25,7 +25,7 @@ This simply calls the preFunc callback (if there is one),
 calls `subschemaWalk` wth an empty parent path of `[]`, and
 then calls the postFunc callback.
 
-#### `subschemaWalk(scheam, preFunc, postFunc, parentPath, vocabulary)`
+#### `subschemaWalk(schema, preFunc, postFunc, parentPath, vocabulary)`
 
 Sometimes it is useful to start somewhere within a document,
 which `subschemaWalk` accomplishes by taking a parent path.
