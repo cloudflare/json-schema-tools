@@ -17,6 +17,11 @@
       "/fixtures/"
     ]
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cloudflare/json-schema-tools.git",
+    "directory": "workspaces/json-schema-transform"
+  },
   "dependencies": {
     "@cloudflare/json-schema-walker": "^0.1.1",
     "json-schema-ref-parser": "^3.0.2",
