@@ -3430,8 +3430,8 @@ modify-values@^1.0.0:
   resolved "https://registry.npmjs.org/modify-values/-/modify-values-1.0.1.tgz#b3939fa605546474e3e3e3c63d64bd43b4ee6022"
 
 moment@^2.6.0:
-  version "2.22.1"
-  resolved "https://registry.npmjs.org/moment/-/moment-2.22.1.tgz#529a2e9bf973f259c9643d237fda84de3a26e8ad"
+  version "2.29.2"
+  resolved "https://registry.npmjs.org/moment/-/moment-2.29.2.tgz#00910c60b20843bcba52d37d58c628b47b1f20e4"
 
 ms@2.0.0:
   version "2.0.0"
