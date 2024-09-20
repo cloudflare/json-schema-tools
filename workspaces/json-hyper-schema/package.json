@@ -11,6 +11,11 @@
   "scripts": {
     "test": "jest --coverage"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cloudflare/json-schema-tools.git",
+    "directory": "workspaces/json-hyper-schema"
+  },
   "dependencies": {
     "uri-templates": "^0.2.0"
   },
